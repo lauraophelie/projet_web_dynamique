@@ -27,10 +27,12 @@ public class FrontServlet extends HttpServlet {
             if (files[i].isDirectory()) {
                 File[] liste = files[i].listFiles();
                 for (int j = 0; j < liste.length; j++) {
-                    String file = liste[j].getName();
-                    String[] chain = file.split(".class");
-                    for (int k = 0; k < chain.length; k++) {
-                        f += chain[k] + "//";
+                    if(liste[j].isDirectory() == false) {
+                        String file = liste[j].getName();
+                        String [] chain = file.split(".class");
+                        for (int k = 0; k < chain.length; k++) {
+                            f += chain[k] + "//";
+                        }
                     }
                 }
                 String[] attributs = f.split("//");
@@ -66,10 +68,6 @@ public class FrontServlet extends HttpServlet {
             String url = request.getRequestURL().toString();
             String value = utilitaire.getUrlValues(url);
             init(value);
-            out.println(value);
-            for (String key : mappingUrls.keySet()) {
-                out.println(key + " = " + mappingUrls.get(key));
-            }
         }
     }
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
