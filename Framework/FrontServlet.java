@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import etu1885.framework.Utilitaire;
 import etu1885.URLs;
 import etu1885.framework.Mapping;
+import java.util.List;
 
 public class FrontServlet extends HttpServlet {
 
@@ -20,44 +21,41 @@ public class FrontServlet extends HttpServlet {
 
     public void init(String path) {
         mappingUrls = new HashMap<String, Mapping>();
-        Utilitaire u = new Utilitaire();
-        File[] files = new File("../webapps/testfront-servlet/WEB-INF/classes/").listFiles();
-        for (int i = 0; i < files.length; i++) {
+        List<File> files = new Utilitaire().getFiles("../webapps/TestFramework/WEB-INF/classes/");
+        for(File file : files) {
             String f = "";
-            if (files[i].isDirectory()) {
-                File[] liste = files[i].listFiles();
-                for (int j = 0; j < liste.length; j++) {
-                    if(liste[j].isDirectory() == false) {
-                        String file = liste[j].getName();
-                        String [] chain = file.split(".class");
-                        for (int k = 0; k < chain.length; k++) {
-                            f += chain[k] + "//";
-                        }
-                    }
-                }
-                String[] attributs = f.split("//");
-                for (int j = 0; j < attributs.length; j++) {
-                    String name = files[i].getName() + "." + attributs[j];
-                    try {
-                        Class c = Class.forName(name);
-                        Method[] m = c.getDeclaredMethods();
-                        for (int k = 0; k < m.length; k++) {
-                            if (m[k].isAnnotationPresent(URLs.class)) {
-                                String url = m[k].getAnnotation(URLs.class).url();
-                                if (url.equals(path)) {
-                                    String className = c.getName();
-                                    String methodName = m[k].getName();
-                                    Mapping map = new Mapping(className, methodName);
-                                    mappingUrls.put(url, map);
-                                }
-                            }
-                        }
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
+            File [] liste = file.listFiles();
+            for (int i = 0; i < liste.length; i++) {
+                if(liste[i].isDirectory() == false) {
+                    String fl = liste[i].getName();
+                    String [] chain = fl.split(".class");
+                    for (int k = 0; k < chain.length; k++) {
+                        f += chain[k] + "//";
                     }
                 }
             }
-        }
+            String [] attributs = f.split("//");
+            for (int j = 0; j < attributs.length; j++) {
+                String name = file.getName() + "." + attributs[j];
+                try {
+                    Class c = Class.forName(name);
+                    Method[] m = c.getDeclaredMethods();
+                    for (int k = 0; k < m.length; k++) {
+                        if (m[k].isAnnotationPresent(URLs.class)) {
+                            String url = m[k].getAnnotation(URLs.class).url();
+                            if (url.equals(path)) {
+                                String className = c.getName();
+                                String methodName = m[k].getName();
+                                Mapping map = new Mapping(className, methodName);
+                                mappingUrls.put(url, map);
+                            }
+                        }
+                    }
+                } catch (ClassNotFoundException e) {
+                    
+                }
+            }
+        } 
     }
     
 
@@ -67,6 +65,7 @@ public class FrontServlet extends HttpServlet {
             Utilitaire utilitaire = new Utilitaire();
             String url = request.getRequestURL().toString();
             String value = utilitaire.getUrlValues(url);
+            out.println(value);
             init(value);
         }
     }
