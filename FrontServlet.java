@@ -21,7 +21,7 @@ public class FrontServlet extends HttpServlet {
     public void init(String path) {
         mappingUrls = new HashMap<String, Mapping>();
         Utilitaire u = new Utilitaire();
-        File[] files = new File("./").listFiles();
+        File[] files = new File("../webapps/testfront-servlet/WEB-INF/classes/").listFiles();
         for (int i = 0; i < files.length; i++) {
             String f = "";
             if (files[i].isDirectory()) {
@@ -67,9 +67,9 @@ public class FrontServlet extends HttpServlet {
             String value = utilitaire.getUrlValues(url);
             init(value);
             out.println(value);
-            /*for (String key : mappingUrls.keySet()) {
+            for (String key : mappingUrls.keySet()) {
                 out.println(key + " = " + mappingUrls.get(key));
-            }*/
+            }
         }
     }
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
