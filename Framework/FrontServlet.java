@@ -65,10 +65,14 @@ public class FrontServlet extends HttpServlet {
             String url = request.getRequestURL().toString();
             String value = utilitaire.getUrlValues(url);
         
-            Mapping m = new Mapping();
+            out.println(value);
+            for(String key: mappingUrls.keySet()) {
+                out.println(key);
+            }
+            /*Mapping m = new Mapping();
             if (mappingUrls.containsKey(value)) {
                 m = mappingUrls.get(value);
-            }
+            }*/
         }
     }
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
