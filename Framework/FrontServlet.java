@@ -21,7 +21,7 @@ public class FrontServlet extends HttpServlet {
 
     public void init() throws ServletException {
         mappingUrls = new HashMap<String, Mapping>();
-        List<File> files = new Utilitaire().getFiles("../webapps/TestFramework/WEB-INF/classes/");
+        List<File> files = new Utilitaire().getFiles("../webapps/TestFramework/WEB-INF/");
         for(File file : files) {
             String f = "";
             File [] liste = file.listFiles();
