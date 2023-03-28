@@ -19,7 +19,7 @@ public class FrontServlet extends HttpServlet {
 
     HashMap<String, Mapping> mappingUrls;
 
-    public void init(String path) {
+    public void init() {
         mappingUrls = new HashMap<String, Mapping>();
         List<File> files = new Utilitaire().getFiles("../webapps/TestFramework/WEB-INF/classes/");
         for(File file : files) {
@@ -43,12 +43,10 @@ public class FrontServlet extends HttpServlet {
                     for (int k = 0; k < m.length; k++) {
                         if (m[k].isAnnotationPresent(URLs.class)) {
                             String url = m[k].getAnnotation(URLs.class).url();
-                            if (url.equals(path)) {
-                                String className = c.getName();
-                                String methodName = m[k].getName();
-                                Mapping map = new Mapping(className, methodName);
-                                mappingUrls.put(url, map);
-                            }
+                            String className = c.getName();
+                            String methodName = m[k].getName();
+                            Mapping map = new Mapping(className, methodName);
+                            mappingUrls.put(url, map);
                         }
                     }
                 } catch (ClassNotFoundException e) {
@@ -65,8 +63,11 @@ public class FrontServlet extends HttpServlet {
             Utilitaire utilitaire = new Utilitaire();
             String url = request.getRequestURL().toString();
             String value = utilitaire.getUrlValues(url);
-            out.println(value);
-            init(value);
+        
+            Mapping m = new Mapping();
+            if (mappingUrls.containsKey(value)) {
+                m = mappingUrls.get(value);
+            }
         }
     }
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
