@@ -19,7 +19,7 @@ public class FrontServlet extends HttpServlet {
 
     HashMap<String, Mapping> mappingUrls;
 
-    public void init() {
+    public void init() throws ServletException {
         mappingUrls = new HashMap<String, Mapping>();
         List<File> files = new Utilitaire().getFiles("../webapps/TestFramework/WEB-INF/classes/");
         for(File file : files) {
