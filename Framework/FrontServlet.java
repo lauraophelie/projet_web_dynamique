@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 import etu1885.framework.Utilitaire;
 import etu1885.URLs;
 import etu1885.framework.Mapping;
+import etu1885.framework.ModelView;
+
 import java.util.List;
 
 public class FrontServlet extends HttpServlet {
@@ -65,16 +67,28 @@ public class FrontServlet extends HttpServlet {
             String url = request.getRequestURL().toString();
             String value = utilitaire.getUrlValues(url);
         
-            out.println(value);
+            /*out.println(value);
             for(String key: mappingUrls.keySet()) {
                 out.println(key);
-            }
-            /*Mapping m = new Mapping();
+            }*/
+            Mapping m = new Mapping();
+            
             if (mappingUrls.containsKey(value)) {
                 m = mappingUrls.get(value);
-            }*/
+            } else {
+                out.println("URL inconnue");
+            }
+
+            try {
+                Class c = Class.forName(m.getClassName());
+                Object obj = c.getMethod(m.getMethod()).invoke(c);
+                //ModelView mv = (ModelView) obj;
+            } catch(Exception e) {
+                out.println(e.getMessage());
+            }
         }
     }
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         processRequest(request, response);
     }  
