@@ -82,7 +82,11 @@ public class FrontServlet extends HttpServlet {
             try {
                 Class c = Class.forName(m.getClassName());
                 Object obj = c.getMethod(m.getMethod()).invoke(c);
-                // ModelView mv = 
+                ModelView mv = (ModelView) obj;
+
+                RequestDispatcher dispat = request.getRequestDispatcher(mv.getView());
+                dispat.forward(request, response);
+
             } catch(Exception e) {
                 out.println(e.getMessage());
             }
