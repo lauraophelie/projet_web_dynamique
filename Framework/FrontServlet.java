@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import etu1885.framework.Utilitaire;
 import etu1885.URLs;
+import javax.servlet.RequestDispatcher;
 import etu1885.framework.Mapping;
 import etu1885.framework.ModelView;
 
