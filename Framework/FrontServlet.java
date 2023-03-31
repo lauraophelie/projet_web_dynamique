@@ -59,37 +59,26 @@ public class FrontServlet extends HttpServlet {
         } 
     }
     
-
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
+        PrintWriter out = response.getWriter();
+        try {
             Utilitaire utilitaire = new Utilitaire();
             String url = request.getRequestURL().toString();
             String value = utilitaire.getUrlValues(url);
-        
-            /*out.println(value);
-            for(String key: mappingUrls.keySet()) {
-                out.println(key);
-            }*/
             Mapping m = new Mapping();
-            
-            if (mappingUrls.containsKey(value)) {
-                m = mappingUrls.get(value);
-            } else {
-                out.println("URL inconnue");
-            }
+                
+            if (mappingUrls.containsKey(value)) m = mappingUrls.get(value);
+            else out.println("URL inconnue");
 
-            try {
-                Class c = Class.forName(m.getClassName());
-                Object obj = c.getMethod(m.getMethod()).invoke(c);
-                ModelView mv = (ModelView) obj;
-
-                RequestDispatcher dispat = request.getRequestDispatcher(mv.getView());
-                dispat.forward(request, response);
-
-            } catch(Exception e) {
-                out.println(e.getMessage());
-            }
+            Class c = Class.forName(m.getClassName());
+            Object obj = c.getMethod(m.getMethod()).invoke(c);
+            ModelView mv = (ModelView) obj;
+            mv.setView("/index.jsp");
+            RequestDispatcher dispat = request.getRequestDispatcher(mv.getView());
+            dispat.forward(request, response);
+        } catch(Exception e) {
+            out.println(e.getMessage());
         }
     }
 
