@@ -1,6 +1,7 @@
 package etu1885.framework;
 
 public class Mapping {
+    
     String className;
 
     public String getClassName() {

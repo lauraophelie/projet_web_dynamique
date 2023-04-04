@@ -5,6 +5,7 @@ import java.net.URI;
 import java.util.List;
 
 public class Utilitaire {
+
     public String getUrlValues(String url) {
         
         URI uri = URI.create(url);
@@ -19,6 +20,7 @@ public class Utilitaire {
         
         return value;
     }
+    
     public List<File> getFiles(String path) {
         List<File> files = new ArrayList<File>();
         File [] f = new File(path).listFiles();
