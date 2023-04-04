@@ -17,6 +17,7 @@ import etu1885.framework.Mapping;
 import etu1885.framework.ModelView;
 
 import java.util.List;
+import java.util.Map;
 
 public class FrontServlet extends HttpServlet {
 
@@ -64,22 +65,43 @@ public class FrontServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
         try {
+
             Utilitaire utilitaire = new Utilitaire();
             String url = request.getRequestURL().toString();
             String value = utilitaire.getUrlValues(url);
+
+            out.println("URL : " + value);
+
             Mapping m = new Mapping();
+
+            for(Map.Entry<String, Mapping> entry : mappingUrls.entrySet()) {
+                String key = entry.getKey();
+                String valeur = entry.getValue().getClassName();
+            }
                 
             if (mappingUrls.containsKey(value)) m = mappingUrls.get(value);
             else out.println("URL inconnue");
 
             Class c = Class.forName(m.getClassName());
-            Object obj = c.getMethod(m.getMethod()).invoke(c);
+            Object obj = c.getMethod(m.getMethod()).invoke(c.newInstance());
+
             ModelView mv = (ModelView) obj;
-            mv.setView("/index.jsp");
+
+            HashMap<String, Object> data = mv.getData();
+
+            if(data.isEmpty() == false || data != null) {
+                for(Map.Entry<String, Object> entry : data.entrySet()) {
+                    String key = entry.getKey();
+                    Object val = entry.getValue();
+                    request.setAttribute(key, val);
+                }
+            } 
             RequestDispatcher dispat = request.getRequestDispatcher(mv.getView());
             dispat.forward(request, response);
+            
         } catch(Exception e) {
-            out.println(e.getMessage());
+            //out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 
