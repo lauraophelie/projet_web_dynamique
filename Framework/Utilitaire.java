@@ -1,8 +1,13 @@
 package etu1885.framework;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.List;
+
+import java.lang.reflect.Type;
 
 public class Utilitaire {
 
@@ -32,5 +37,27 @@ public class Utilitaire {
             }
         }
         return files;
+    }
+
+    public HashMap<String, Type> getAttributs(Class<?> clazz) {
+        HashMap<String, Type> attributs = new HashMap<>();
+        Field [] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
+            String name = field.getName();
+            Type type = field.getType();
+            attributs.put(name, type);
+        }
+        return attributs;
+    }
+
+    public List<Method> getListeSetters(Class<?> clazz) {
+        List<Method> setters = new ArrayList<>();
+        Method [] methods = clazz.getMethods();
+        for (Method method : methods) {
+            if(method.getName().contains("set")) {
+                setters.add(method);
+            }
+        }
+        return setters;
     }
 }

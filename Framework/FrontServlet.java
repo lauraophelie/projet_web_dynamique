@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 
 import javax.servlet.ServletException;
@@ -83,7 +84,27 @@ public class FrontServlet extends HttpServlet {
             else out.println("URL inconnue");
 
             Class c = Class.forName(m.getClassName());
-            Object obj = c.getMethod(m.getMethod()).invoke(c.newInstance());
+            Object obj = null;
+
+            if(m.getMethod().contains("save") == false) {
+                obj = c.getMethod(m.getMethod()).invoke(c.newInstance());
+                break;
+            } /*else {
+                List<Method> setters = utilitaire.getListeSetters(c);
+                HashMap<String, Type> attributs = utilitaire.getAttributs(c);
+
+                int i = 0;
+                for(Map.Entry<String, Type> entry : attributs.entrySet()) {
+                    String name = entry.getKey();
+                    String req = request.getParameter(name);
+                    Type type = entry.getValue();
+                    if(req.isEmpty() == false || req != null) {
+                        obj = c.newInstance();
+                        Method set = obj.class.getMethod(setters.get(i).getName(), type.class).invoke(obj, req);
+                    }
+                    i++;
+                }
+            }*/
 
             ModelView mv = (ModelView) obj;
 
