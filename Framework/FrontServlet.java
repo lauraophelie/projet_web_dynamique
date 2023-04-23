@@ -88,23 +88,28 @@ public class FrontServlet extends HttpServlet {
 
             if(m.getMethod().contains("save") == false) {
                 obj = c.getMethod(m.getMethod()).invoke(c.newInstance());
-                break;
-            } /*else {
+            } else {
                 List<Method> setters = utilitaire.getListeSetters(c);
                 HashMap<String, Type> attributs = utilitaire.getAttributs(c);
 
                 int i = 0;
-                for(Map.Entry<String, Type> entry : attributs.entrySet()) {
+                for (Map.Entry<String, Type> entry : attributs.entrySet()) {
                     String name = entry.getKey();
-                    String req = request.getParameter(name);
                     Type type = entry.getValue();
-                    if(req.isEmpty() == false || req != null) {
-                        obj = c.newInstance();
-                        Method set = obj.class.getMethod(setters.get(i).getName(), type.class).invoke(obj, req);
+                    String req = request.getParameter(name);
+
+                    if (req != null && !req.isEmpty()) {
+                        Object val = utilitaire.convertParameterToType(req, type);
+
+                        if (val != null) {
+                            obj = c.newInstance();
+                            Method set = obj.getClass().getMethod(setters.get(i).getName(), type.getClass());
+                            set.invoke(obj, val);
+                        }
                     }
                     i++;
                 }
-            }*/
+            }
 
             ModelView mv = (ModelView) obj;
 
