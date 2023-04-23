@@ -8,6 +8,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,7 +28,17 @@ public class FrontServlet extends HttpServlet {
     public void init() throws ServletException {
         
         mappingUrls = new HashMap<String, Mapping>();
-        List<File> files = new Utilitaire().getFiles("../webapps/TestFramework/WEB-INF/");
+        //List<File> files = new Utilitaire().getFiles("../webapps/TestFramework/WEB-INF/");
+
+        ServletContext context = this.getServletContext();
+        String contextPath = context != null ? context.getRealPath("") : null;
+        if (contextPath == null) {
+            contextPath = new File("").getAbsolutePath();
+        }
+        File webInfDirectory = new File(contextPath, "WEB-INF");
+        List<File> files = new Utilitaire().getFiles(webInfDirectory.getAbsolutePath());
+
+        
         for(File file : files) {
             String f = "";
             File [] liste = file.listFiles();
