@@ -30,5 +30,6 @@
         </tr>
     <% } %> 
     </table>
+    <a href="./formulaire-emp.jsp"> Formulaire d'insertion </a>
 </body>
 </html>

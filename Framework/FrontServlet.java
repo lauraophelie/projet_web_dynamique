@@ -3,13 +3,19 @@ package etu1885.framework.servlet;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.omg.CORBA.NO_MEMORY;
+
 import etu1885.framework.Utilitaire;
 import etu1885.URLs;
 import javax.servlet.RequestDispatcher;
@@ -26,7 +32,16 @@ public class FrontServlet extends HttpServlet {
     public void init() throws ServletException {
         
         mappingUrls = new HashMap<String, Mapping>();
-        List<File> files = new Utilitaire().getFiles("../webapps/TestFramework/WEB-INF/");
+        
+        ServletContext context = this.getServletContext();
+        String contextPath = context != null ? context.getRealPath("") : null;
+        if (contextPath == null) {
+            contextPath = new File("").getAbsolutePath();
+        }
+        File webInfDirectory = new File(contextPath, "WEB-INF");
+        List<File> files = new Utilitaire().getFiles(webInfDirectory.getAbsolutePath());
+
+        
         for(File file : files) {
             String f = "";
             File [] liste = file.listFiles();
@@ -70,8 +85,6 @@ public class FrontServlet extends HttpServlet {
             String url = request.getRequestURL().toString();
             String value = utilitaire.getUrlValues(url);
 
-            out.println("URL : " + value);
-
             Mapping m = new Mapping();
 
             for(Map.Entry<String, Mapping> entry : mappingUrls.entrySet()) {
@@ -83,8 +96,30 @@ public class FrontServlet extends HttpServlet {
             else out.println("URL inconnue");
 
             Class c = Class.forName(m.getClassName());
-            Object obj = c.getMethod(m.getMethod()).invoke(c.newInstance());
+            Object obj = null;
 
+            if(m.getMethod().contains("save") == false) {
+                obj = c.getMethod(m.getMethod()).invoke(c.newInstance());
+            } else {
+                HashMap<String, Type> attributs = utilitaire.getAttributs(c);
+                Object objet = c.newInstance();
+
+                for (Map.Entry<String, Type> entry : attributs.entrySet()) {
+
+                    String name = entry.getKey();
+                    Type type = entry.getValue();
+                    String req = request.getParameter(name);
+
+                    if (req != null && !req.isEmpty()) {
+                        Object val = utilitaire.convertParameterToType(req, type);
+                        Field f = objet.getClass().getDeclaredField(name);
+                        f.setAccessible(true);
+                        f.set(objet, val);
+                    }
+                }                
+                Method saveMethod = c.getMethod(m.getMethod(), objet.getClass());
+                obj = saveMethod.invoke(c.newInstance(), objet);
+            }
             ModelView mv = (ModelView) obj;
 
             HashMap<String, Object> data = mv.getData();
