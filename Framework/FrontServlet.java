@@ -3,6 +3,7 @@ package etu1885.framework.servlet;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -12,6 +13,9 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.omg.CORBA.NO_MEMORY;
+
 import etu1885.framework.Utilitaire;
 import etu1885.URLs;
 import javax.servlet.RequestDispatcher;
@@ -82,7 +86,6 @@ public class FrontServlet extends HttpServlet {
             String url = request.getRequestURL().toString();
             String value = utilitaire.getUrlValues(url);
 
-            out.println("URL : " + value);
             Mapping m = new Mapping();
 
             for(Map.Entry<String, Mapping> entry : mappingUrls.entrySet()) {
@@ -99,28 +102,25 @@ public class FrontServlet extends HttpServlet {
             if(m.getMethod().contains("save") == false) {
                 obj = c.getMethod(m.getMethod()).invoke(c.newInstance());
             } else {
-                List<Method> setters = utilitaire.getListeSetters(c);
                 HashMap<String, Type> attributs = utilitaire.getAttributs(c);
-                Object objet = null;
+                Object objet = c.newInstance();
 
-                int i = 0;
                 for (Map.Entry<String, Type> entry : attributs.entrySet()) {
-
+                    
                     String name = entry.getKey();
                     Type type = entry.getValue();
                     String req = request.getParameter(name);
 
                     if (req != null && !req.isEmpty()) {
                         Object val = utilitaire.convertParameterToType(req, type);
-                        objet = c.newInstance();
-                        Method set = objet.getClass().getMethod(setters.get(i).getName(), type.getClass());
-                        set.invoke(objet, val);
+                        Field f = objet.getClass().getDeclaredField(name);
+                        f.setAccessible(true);
+                        f.set(objet, val);
                     }
-                    i++;
-                }
-                obj = c.getMethod(m.getMethod(), objet.getClass().getComponentType()).invoke(c.newInstance());
+                }                
+                Method saveMethod = c.getMethod(m.getMethod(), objet.getClass());
+                obj = saveMethod.invoke(c.newInstance(), objet);
             }
-
             ModelView mv = (ModelView) obj;
 
             HashMap<String, Object> data = mv.getData();

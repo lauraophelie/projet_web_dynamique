@@ -54,17 +54,6 @@ public class Utilitaire {
         return attributs;
     }
 
-    public List<Method> getListeSetters(Class<?> clazz) {
-        List<Method> setters = new ArrayList<>();
-        Method [] methods = clazz.getMethods();
-        for (Method method : methods) {
-            if(method.getName().contains("set")) {
-                setters.add(method);
-            }
-        }
-        return setters;
-    }
-
     public Object convertParameterToType(String parameter, Type type) {
         Object value = null;
     
@@ -102,6 +91,14 @@ public class Utilitaire {
     
         return value;
     }
+
+    public static String firstLetter(String str) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
+    }
+    
     
     
 }
