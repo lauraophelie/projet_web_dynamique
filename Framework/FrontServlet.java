@@ -83,7 +83,6 @@ public class FrontServlet extends HttpServlet {
             String value = utilitaire.getUrlValues(url);
 
             out.println("URL : " + value);
-
             Mapping m = new Mapping();
 
             for(Map.Entry<String, Mapping> entry : mappingUrls.entrySet()) {
@@ -102,24 +101,24 @@ public class FrontServlet extends HttpServlet {
             } else {
                 List<Method> setters = utilitaire.getListeSetters(c);
                 HashMap<String, Type> attributs = utilitaire.getAttributs(c);
+                Object objet = null;
 
                 int i = 0;
                 for (Map.Entry<String, Type> entry : attributs.entrySet()) {
+
                     String name = entry.getKey();
                     Type type = entry.getValue();
                     String req = request.getParameter(name);
 
                     if (req != null && !req.isEmpty()) {
                         Object val = utilitaire.convertParameterToType(req, type);
-
-                        if (val != null) {
-                            obj = c.newInstance();
-                            Method set = obj.getClass().getMethod(setters.get(i).getName(), type.getClass());
-                            set.invoke(obj, val);
-                        }
+                        objet = c.newInstance();
+                        Method set = objet.getClass().getMethod(setters.get(i).getName(), type.getClass());
+                        set.invoke(objet, val);
                     }
                     i++;
                 }
+                obj = c.getMethod(m.getMethod(), objet.getClass().getComponentType()).invoke(c.newInstance());
             }
 
             ModelView mv = (ModelView) obj;
