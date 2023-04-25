@@ -32,8 +32,7 @@ public class FrontServlet extends HttpServlet {
     public void init() throws ServletException {
         
         mappingUrls = new HashMap<String, Mapping>();
-        //List<File> files = new Utilitaire().getFiles("../webapps/TestFramework/WEB-INF/");
-
+        
         ServletContext context = this.getServletContext();
         String contextPath = context != null ? context.getRealPath("") : null;
         if (contextPath == null) {
@@ -106,7 +105,7 @@ public class FrontServlet extends HttpServlet {
                 Object objet = c.newInstance();
 
                 for (Map.Entry<String, Type> entry : attributs.entrySet()) {
-                    
+
                     String name = entry.getKey();
                     Type type = entry.getValue();
                     String req = request.getParameter(name);
