@@ -98,7 +98,7 @@ public class FrontServlet extends HttpServlet {
             Class c = Class.forName(m.getClassName());
             Object obj = null;
 
-            if(m.getMethod().contains("save") == false) {
+            /*if(m.getMethod().contains("save") == false) {
                 obj = c.getMethod(m.getMethod()).invoke(c.newInstance());
             } else {
                 HashMap<String, Type> attributs = utilitaire.getAttributs(c);
@@ -119,6 +119,34 @@ public class FrontServlet extends HttpServlet {
                 }                
                 Method saveMethod = c.getMethod(m.getMethod(), objet.getClass());
                 obj = saveMethod.invoke(c.newInstance(), objet);
+            }*/
+            if(c.getMethod(m.getMethod()).getParameterTypes().length == 0) {
+                obj = c.getMethod(m.getMethod()).invoke(c.newInstance());
+            } else {
+                String nameMethod = m.getMethod();
+                if(nameMethod.contains("save")) {
+                    HashMap<String, Type> attributs = utilitaire.getAttributs(c);
+                    Object objet = c.newInstance();
+
+                    for (Map.Entry<String, Type> entry : attributs.entrySet()) {
+
+                        String name = entry.getKey();
+                        Type type = entry.getValue();
+                        String req = request.getParameter(name);
+
+                        if (req != null && !req.isEmpty()) {
+                            Object val = utilitaire.convertParameterToType(req, type);
+                            Field f = objet.getClass().getDeclaredField(name);
+                            f.setAccessible(true);
+                            f.set(objet, val);
+                        }
+                    }                
+                    Method saveMethod = c.getMethod(m.getMethod(), objet.getClass());
+                    obj = saveMethod.invoke(c.newInstance(), objet);
+                } else if(nameMethod.contains("find-by-id")) {
+                    Object objet = c.newInstance();
+                    Class<?> [] parameters = c.getMethod(nameMethod).getParameterTypes();
+                }
             }
             ModelView mv = (ModelView) obj;
 
