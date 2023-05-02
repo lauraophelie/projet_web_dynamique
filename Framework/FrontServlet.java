@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 
@@ -98,7 +99,15 @@ public class FrontServlet extends HttpServlet {
             Class c = Class.forName(m.getClassName());
             Object obj = null;
 
-            /*if(m.getMethod().contains("save") == false) {
+            if(m.getMethod().contains("save") == false) {
+                /*if(m.getMethod().contains("findById") == false) {
+                    obj = c.getMethod(m.getMethod()).invoke(c.newInstance());
+                } else {
+                    Object object = c.newInstance();
+                    Method method = c.getMethod(m.getMethod(), int.class);
+                    object = method.invoke(c.newInstance(), int.class);
+                    obj = object;
+                }*/
                 obj = c.getMethod(m.getMethod()).invoke(c.newInstance());
             } else {
                 HashMap<String, Type> attributs = utilitaire.getAttributs(c);
@@ -119,34 +128,6 @@ public class FrontServlet extends HttpServlet {
                 }                
                 Method saveMethod = c.getMethod(m.getMethod(), objet.getClass());
                 obj = saveMethod.invoke(c.newInstance(), objet);
-            }*/
-            if(c.getMethod(m.getMethod()).getParameterTypes().length == 0) {
-                obj = c.getMethod(m.getMethod()).invoke(c.newInstance());
-            } else {
-                String nameMethod = m.getMethod();
-                if(nameMethod.contains("save")) {
-                    HashMap<String, Type> attributs = utilitaire.getAttributs(c);
-                    Object objet = c.newInstance();
-
-                    for (Map.Entry<String, Type> entry : attributs.entrySet()) {
-
-                        String name = entry.getKey();
-                        Type type = entry.getValue();
-                        String req = request.getParameter(name);
-
-                        if (req != null && !req.isEmpty()) {
-                            Object val = utilitaire.convertParameterToType(req, type);
-                            Field f = objet.getClass().getDeclaredField(name);
-                            f.setAccessible(true);
-                            f.set(objet, val);
-                        }
-                    }                
-                    Method saveMethod = c.getMethod(m.getMethod(), objet.getClass());
-                    obj = saveMethod.invoke(c.newInstance(), objet);
-                } else if(nameMethod.contains("find-by-id")) {
-                    Object objet = c.newInstance();
-                    Class<?> [] parameters = c.getMethod(nameMethod).getParameterTypes();
-                }
             }
             ModelView mv = (ModelView) obj;
 
@@ -163,7 +144,6 @@ public class FrontServlet extends HttpServlet {
             dispat.forward(request, response);
             
         } catch(Exception e) {
-            //out.println(e.getMessage());
             e.printStackTrace();
         }
     }
