@@ -8,14 +8,14 @@
 </ul>
 
 <p>
-    "<servlet>
+    <servlet>
         <servlet-name> FrontServlet </servlet-name>
         <servlet-class> etu1885.framework.servlet.FrontServlet </servlet-class>
-    </servlet>"
-    "<servlet-mapping>
+    </servlet>
+    <servlet-mapping>
         <servlet-name> FrontServlet </servlet-name>
         <url-pattern> / </url-pattern>
-    </servlet-mapping>"
+    </servlet-mapping>
 </p>
 
 <h2> Annotations </h2>
