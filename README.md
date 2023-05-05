@@ -1,5 +1,12 @@
 <h1> Framework </h1>
 
+<h2> Pré - requis </h2>
+
+<ul>
+    <li> JDK version 8 </li>
+    <li> Tomcat version 8 </li>
+</ul>
+
 <h2> web.xml </h2>
 
 <ul>
