@@ -7,14 +7,16 @@
     <li> url-pattern : / </li>
 </ul>
 
-<servlet>
+<p>
+    <servlet>
         <servlet-name> FrontServlet </servlet-name>
         <servlet-class> etu1885.framework.servlet.FrontServlet </servlet-class>
-</servlet>
-<servlet-mapping>
-    <servlet-name> FrontServlet </servlet-name>
-    <url-pattern> / </url-pattern>
-</servlet-mapping>      
+    </servlet>
+    <servlet-mapping>
+        <servlet-name> FrontServlet </servlet-name>
+        <url-pattern> / </url-pattern>
+    </servlet-mapping>
+</p>
 
 <h2> Annotations </h2>
 
@@ -40,4 +42,32 @@
 
                 return mv;
             }
+</p>
+
+<p> la fonction save() prend en paramètre un Objet </p>
+<p>
+    exemple : dans la classe Emp -> la fonction save prend en paramètre un Objet de type Emp 
+            @URLs(url="emp-save")
+            public ModelView save(Emp e) {
+
+                ModelView mv = new ModelView();
+                mv.setView("/saved-emp.jsp");
+                
+                int id = e.getId();
+                String nom = e.getNom();
+                double salaire = e.getSalaire();
+
+                Emp emp = new Emp(id, nom, salaire);
+                mv.addItem("Emp", emp);
+
+                return mv;
+            }
+</p>
+<p>
+    pour la fonction save, les types disponibles pour le cast() sont : 
+        int, long, double, float, boolean, String, LocalDate, LocalTime, 
+        LocalDateTime, java.sql.Date, java.sql.Time
+</p>
+<p>
+    la fonction de cast() est disponible dans la class Utilitaire -> convertParameterToType()
 </p>
