@@ -44,7 +44,10 @@
             }
 </p>
 
+<h2> Fonction save() </h2> 
+
 <p> la fonction save() prend en paramètre un Objet </p>
+
 <p>
     exemple : dans la classe Emp -> la fonction save prend en paramètre un Objet de type Emp 
             @URLs(url="emp-save")
