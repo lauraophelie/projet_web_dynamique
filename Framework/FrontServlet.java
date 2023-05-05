@@ -15,8 +15,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.omg.CORBA.NO_MEMORY;
-
 import etu1885.framework.Utilitaire;
 import etu1885.URLs;
 import javax.servlet.RequestDispatcher;
@@ -100,16 +98,22 @@ public class FrontServlet extends HttpServlet {
             Object obj = null;
 
             if(m.getMethod().contains("save") == false) {
-                /*if(m.getMethod().contains("findById") == false) {
+                Object o = c.newInstance();
+                if(m.getMethod().contains("findById") == false) {
                     obj = c.getMethod(m.getMethod()).invoke(c.newInstance());
                 } else {
-                    Object object = c.newInstance();
-                    Method method = c.getMethod(m.getMethod(), int.class);
-                    object = method.invoke(c.newInstance(), int.class);
-                    obj = object;
-                }*/
-                obj = c.getMethod(m.getMethod()).invoke(c.newInstance());
-            } else {
+                    Method meth = o.getClass().getMethod(m.getMethod(), int.class);
+                    Parameter [] params = meth.getParameters();
+                    for (Parameter parameter : params) {
+                        String idParam = request.getParameter(parameter.getName());
+                        
+                        if(idParam.isEmpty() == false || idParam != null) {
+                            int id = Integer.parseInt(idParam);
+                            obj = meth.invoke(o, id);
+                        }
+                    }
+                }
+            } else{
                 HashMap<String, Type> attributs = utilitaire.getAttributs(c);
                 Object objet = c.newInstance();
 
@@ -144,6 +148,7 @@ public class FrontServlet extends HttpServlet {
             dispat.forward(request, response);
             
         } catch(Exception e) {
+            System.out.println(e.getMessage());
             e.printStackTrace();
         }
     }
