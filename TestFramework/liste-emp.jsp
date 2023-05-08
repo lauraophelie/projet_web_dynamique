@@ -18,6 +18,7 @@
             <th> ID </th>
             <th> Nom </th>
             <th> Salaire </th>
+            <th> </th>
         </tr>
     <%
         List<Emp> liste = (List<Emp>) request.getAttribute("Liste-Emp");
@@ -27,6 +28,9 @@
             <td> <% out.println(liste.get(i).getId()); %> </td>
             <td> <% out.println(liste.get(i).getNom()); %> </td>
             <td> <% out.println(liste.get(i).getSalaire()); %> </td>
+            <td>
+                <a href="emp-find-by-id?id=<% out.println(liste.get(i).getId()); %>"> Détails </a>
+            </td>
         </tr>
     <% } %> 
     </table>

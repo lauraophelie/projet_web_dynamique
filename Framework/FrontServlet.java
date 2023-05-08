@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
+import java.text.Annotation;
 import java.util.HashMap;
 
 import javax.servlet.ServletException;
@@ -14,13 +16,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.omg.CORBA.NO_MEMORY;
-
 import etu1885.framework.Utilitaire;
 import etu1885.URLs;
 import javax.servlet.RequestDispatcher;
 import etu1885.framework.Mapping;
 import etu1885.framework.ModelView;
+import etu1885.Parametre;
 
 import java.util.List;
 import java.util.Map;
@@ -99,8 +100,28 @@ public class FrontServlet extends HttpServlet {
             Object obj = null;
 
             if(m.getMethod().contains("save") == false) {
-                obj = c.getMethod(m.getMethod()).invoke(c.newInstance());
-            } else {
+                Object o = c.newInstance();
+                for(Method method : c.getDeclaredMethods()) {
+                    if(method.getName().equals(m.getMethod())) {
+                        Parameter [] params = method.getParameters();
+                        if(params.length > 0) {
+                            for(Parameter parameter : params) {
+                                if(parameter.isAnnotationPresent(Parametre.class)) {
+                                    Parametre parametre = parameter.getAnnotation(Parametre.class);
+                                    String valueParam = request.getParameter(parametre.param());
+                                    
+                                    if(valueParam != null || valueParam.isEmpty() == false) {
+                                        Object valueObject = utilitaire.convertParameterToType(valueParam, parameter.getType());
+                                        obj = method.invoke(o, valueObject);
+                                    }
+                                }
+                            }
+                        } else if(params.length == 0) {
+                            obj = c.getMethod(m.getMethod()).invoke(c.newInstance());
+                        }
+                    }
+                }
+            } else{
                 HashMap<String, Type> attributs = utilitaire.getAttributs(c);
                 Object objet = c.newInstance();
 
@@ -135,7 +156,7 @@ public class FrontServlet extends HttpServlet {
             dispat.forward(request, response);
             
         } catch(Exception e) {
-            //out.println(e.getMessage());
+            System.out.println(e.getMessage());
             e.printStackTrace();
         }
     }
