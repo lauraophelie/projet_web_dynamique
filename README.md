@@ -40,7 +40,7 @@
 </p>
 <p>
     Exemple : 
-        exemple : 
+        
             @URLs(url="emp-find-all")
             public ModelView findAll() {
 
@@ -89,6 +89,8 @@
 
 <p>
     exemple : dans la classe Emp -> la fonction save prend en paramètre un Objet de type Emp 
+</p>
+<p>
             @URLs(url="emp-save")
             public ModelView save(Emp e) {
 
