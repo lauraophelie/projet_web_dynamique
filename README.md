@@ -86,10 +86,6 @@
 <h2> Fonction save() </h2> 
 
 <p> la fonction save() prend en paramètre un Objet </p>
-
-<p>
-    exemple : dans la classe Emp -> la fonction save prend en paramètre un Objet de type Emp 
-</p>
 <p>
             @URLs(url="emp-save")
             public ModelView save(Emp e) {
@@ -106,6 +102,9 @@
 
                 return mv;
             }
+</p>
+<p>
+    exemple : dans la classe Emp -> la fonction save prend en paramètre un Objet de type Emp 
 </p>
 <p>
     pour la fonction save, les types disponibles pour le cast() sont : 
