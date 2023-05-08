@@ -7,6 +7,10 @@
     <li> Tomcat version 8 </li>
 </ul>
 
+<h2> Mise en place </h2>
+
+<p> Le fichier framework.jar doit être placé dans le dossier "lib/" du projet Tomcat <p>
+
 <h2> web.xml </h2>
 
 <ul>
@@ -26,6 +30,8 @@
 </p>
 
 <h2> Annotations </h2>
+
+<h3> @URLs </h3>
 
 <p> 
     chaque fonction est de type ModelView et est annotée @URLs,
@@ -49,6 +55,32 @@
 
                 return mv;
             }
+</p>
+
+<h3> @Parametre </h3>
+
+<p>
+    pour une fonction de type ModelView qui contient des paramètres, 
+    chaque paramètre de la fonction doit être annotée @Parametre avec comme valeur le nom du paramètre, 
+    c'est la valeur de cette annotation qui sera ensuite récupérée pour pouvoir appeler la fonction 
+</p>
+
+<p> 
+    Exemple : 
+
+        @URLs(url="emp-find-by-id")
+        public ModelView findById(@Parametre(param="id") int id) {
+            ModelView mv = new ModelView();
+            mv.setView("/details-emp.jsp");
+
+            Emp e = null;
+
+            if(id == 1) e = new Emp(id, "E1", 20000);
+            if(id == 2) e = new Emp(id, "E2", 250000);
+
+            mv.addItem("FicheEmp", e);
+            return mv;
+        }
 </p>
 
 <h2> Fonction save() </h2> 
