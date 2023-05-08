@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
+import java.text.Annotation;
 import java.util.HashMap;
 
 import javax.servlet.ServletException;
@@ -20,6 +21,7 @@ import etu1885.URLs;
 import javax.servlet.RequestDispatcher;
 import etu1885.framework.Mapping;
 import etu1885.framework.ModelView;
+import etu1885.Parametre;
 
 import java.util.List;
 import java.util.Map;
@@ -99,17 +101,23 @@ public class FrontServlet extends HttpServlet {
 
             if(m.getMethod().contains("save") == false) {
                 Object o = c.newInstance();
-                if(m.getMethod().contains("findById") == false) {
-                    obj = c.getMethod(m.getMethod()).invoke(c.newInstance());
-                } else {
-                    Method meth = o.getClass().getMethod(m.getMethod(), int.class);
-                    Parameter [] params = meth.getParameters();
-                    for (Parameter parameter : params) {
-                        String idParam = request.getParameter(parameter.getName());
-                        
-                        if(idParam.isEmpty() == false || idParam != null) {
-                            int id = Integer.parseInt(idParam);
-                            obj = meth.invoke(o, id);
+                for(Method method : c.getDeclaredMethods()) {
+                    if(method.getName().equals(m.getMethod())) {
+                        Parameter [] params = method.getParameters();
+                        if(params.length > 0) {
+                            for(Parameter parameter : params) {
+                                if(parameter.isAnnotationPresent(Parametre.class)) {
+                                    Parametre parametre = parameter.getAnnotation(Parametre.class);
+                                    String valueParam = request.getParameter(parametre.param());
+                                    
+                                    if(valueParam != null || valueParam.isEmpty() == false) {
+                                        Object valueObject = utilitaire.convertParameterToType(valueParam, parameter.getType());
+                                        obj = method.invoke(o, valueObject);
+                                    }
+                                }
+                            }
+                        } else if(params.length == 0) {
+                            obj = c.getMethod(m.getMethod()).invoke(c.newInstance());
                         }
                     }
                 }
