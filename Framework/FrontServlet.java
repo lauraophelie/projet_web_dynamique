@@ -101,10 +101,13 @@ public class FrontServlet extends HttpServlet {
 
             if(m.getMethod().contains("save") == false) {
                 Object o = c.newInstance();
+                Object [] argArray = null;
                 for(Method method : c.getDeclaredMethods()) {
                     if(method.getName().equals(m.getMethod())) {
                         Parameter [] params = method.getParameters();
                         if(params.length > 0) {
+                            argArray = new Object[params.length];
+                            int i = 0;
                             for(Parameter parameter : params) {
                                 if(parameter.isAnnotationPresent(Parametre.class)) {
                                     Parametre parametre = parameter.getAnnotation(Parametre.class);
@@ -112,10 +115,13 @@ public class FrontServlet extends HttpServlet {
                                     
                                     if(valueParam != null || valueParam.isEmpty() == false) {
                                         Object valueObject = utilitaire.convertParameterToType(valueParam, parameter.getType());
-                                        obj = method.invoke(o, valueObject);
+                                        argArray[i] = valueObject;
+                                        //obj = method.invoke(o, valueObject);
+                                        i++;
                                     }
                                 }
                             }
+                            obj = method.invoke(o, argArray);
                         } else if(params.length == 0) {
                             obj = c.getMethod(m.getMethod()).invoke(c.newInstance());
                         }
