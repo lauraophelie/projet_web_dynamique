@@ -2,6 +2,8 @@ package etu1885.framework;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -94,13 +96,18 @@ public class Utilitaire {
         return value;
     }
 
-    public static String firstLetter(String str) {
-        if (str == null || str.isEmpty()) {
-            return str;
+    public byte [] fileToBytes(File file) throws IOException {
+        int fileLength = (int) file.length();
+        byte [] bytesArray = new byte[fileLength];
+
+        FileInputStream fis = null;
+
+        try {
+            fis = new FileInputStream(file);
+            fis.read(bytesArray);
+        } finally {
+            if(fis != null) fis.close();
         }
-        return str.substring(0, 1).toUpperCase() + str.substring(1);
+        return bytesArray;
     }
-    
-    
-    
 }
