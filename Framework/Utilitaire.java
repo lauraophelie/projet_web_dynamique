@@ -18,7 +18,6 @@ import java.lang.reflect.Type;
 public class Utilitaire {
 
     public String getUrlValues(String url) {
-        
         URI uri = URI.create(url);
         String uriPath = uri.getPath();
         String [] values = uriPath.split("/");
