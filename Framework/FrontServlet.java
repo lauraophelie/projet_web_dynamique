@@ -26,6 +26,8 @@ import etu1885.Parametre;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.Part;
+
 public class FrontServlet extends HttpServlet {
 
     HashMap<String, Mapping> mappingUrls;
@@ -116,7 +118,6 @@ public class FrontServlet extends HttpServlet {
                                     if(valueParam != null || valueParam.isEmpty() == false) {
                                         Object valueObject = utilitaire.convertParameterToType(valueParam, parameter.getType());
                                         argArray[i] = valueObject;
-                                        //obj = method.invoke(o, valueObject);
                                         i++;
                                     }
                                 }
@@ -138,8 +139,15 @@ public class FrontServlet extends HttpServlet {
                     String req = request.getParameter(name);
 
                     if (req != null && !req.isEmpty()) {
+
                         Object val = utilitaire.convertParameterToType(req, type);
                         Field f = objet.getClass().getDeclaredField(name);
+                        
+                        if(name == "file") {
+                            Part filePart = request.getPart(name);
+                            String contentDisposition = filePart.getHeader("Content-Disposition");
+                            System.out.println(contentDisposition);
+                        }
                         f.setAccessible(true);
                         f.set(objet, val);
                     }

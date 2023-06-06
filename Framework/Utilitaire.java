@@ -109,4 +109,17 @@ public class Utilitaire {
         }
         return bytesArray;
     }
+
+    public String extractFilePath(String contentDisposition) {
+        String filePath = "";
+        String[] elements = contentDisposition.split(";");
+    
+        for (String element : elements) {
+            if (element.trim().startsWith("filename")) {
+                filePath = element.substring(element.indexOf('=') + 1).trim().replace("\"", "");
+                break;
+            }
+        }
+        return filePath;
+    }
 }
