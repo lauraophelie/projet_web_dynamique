@@ -100,7 +100,8 @@ public class Utilitaire {
 
     public String getFileName(Part part) {
         String contentDisposition = part.getHeader("Content-Disposition");
-        String[] elements = contentDisposition.split(";");
+        System.out.println("Content-Disposition: " + contentDisposition);
+        String [] elements = contentDisposition.split(";");
     
         for (String element : elements) {
             if (element.trim().startsWith("filename")) {
@@ -108,31 +109,36 @@ public class Utilitaire {
                 if (fileName.startsWith("\"") && fileName.endsWith("\"")) {
                     fileName = fileName.substring(1, fileName.length() - 1);
                 }
+                System.out.println("File name: " + fileName);
                 return fileName;
             }
         }
         return null;
     }
 
-    public byte [] fileToBytes(Part filePart) throws IOException {
-
-        byte [] bytes = null;
+    public byte[] fileToBytes(Part filePart) throws IOException {
+        byte[] bytes = null;
         String fileName = this.getFileName(filePart);
-
+    
         InputStream fileContent = filePart.getInputStream();
         ByteArrayOutputStream fileOutput = new ByteArrayOutputStream();
-
-        bytes = new byte[4096];
-        int bytesRead;
-
-        while ((bytesRead = fileContent.read(bytes)) != -1) {
-            fileOutput.write(bytes, 0, bytesRead);
+    
+        try {
+            bytes = new byte[4096];
+            int bytesRead;
+    
+            while ((bytesRead = fileContent.read(bytes)) != -1) {
+                System.out.println("read " + bytesRead + " bytes");
+                fileOutput.write(bytes, 0, bytesRead);
+            }
+    
+            byte[] fileBytes = fileOutput.toByteArray();
+            return fileBytes;
+        } finally {
+            fileContent.close();
+            fileOutput.close();
         }
-        byte [] fileBytes = fileOutput.toByteArray();
-        fileOutput.close();
-
-        return fileBytes;
-    }
+    }    
 
     public void resetAttributes(Object obj) {
 
