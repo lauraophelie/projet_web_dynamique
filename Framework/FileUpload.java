@@ -35,7 +35,6 @@ public class FileUpload {
         this.setPath(path);
         this.setBytes(bytes);
     }
-    
     public FileUpload(String name, String path, byte[] bytes) {
         this.setName(name);
         this.setPath(path);
