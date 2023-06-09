@@ -144,23 +144,19 @@ public class FrontServlet extends HttpServlet {
                     String req = request.getParameter(name);
                     
                     if (req != null && !req.isEmpty()) {
-
                         Object val = utilitaire.convertParameterToType(req, type);
                         Field f = objet.getClass().getDeclaredField(name);
-                        System.out.println(name + " : " + val);
                         f.setAccessible(true);
                         f.set(objet, val);
-                        System.out.println("set");
                     }
                     if(name == "file") {
-                        System.out.println("file");
                         try {
                             Part filePart = request.getPart("file");
                             String fileName = utilitaire.getFileName(filePart);
 
                             byte [] fileContent = utilitaire.fileToBytes(filePart);
                             filePart.getInputStream().close();
-                            
+
                             FileUpload upload = new FileUpload();
 
                             upload.setName(fileName);
@@ -169,7 +165,6 @@ public class FrontServlet extends HttpServlet {
                             Field f = objet.getClass().getDeclaredField(name);
                             f.setAccessible(true);
                             f.set(objet, upload);
-                            System.out.println("set file");
                         } catch (Exception e) {
                             System.out.println(e.getMessage());
                         }
