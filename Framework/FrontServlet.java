@@ -36,6 +36,7 @@ import javax.servlet.annotation.WebServlet;
 public class FrontServlet extends HttpServlet {
 
     HashMap<String, Mapping> mappingUrls;
+    HashMap<String, Object> singletons;
 
     public void init() throws ServletException {
         

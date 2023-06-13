@@ -58,8 +58,6 @@ public class Utilitaire {
         return attributs;
     }
 
-    
-
     public Object convertParameterToType(String parameter, Type type) {
         Object value = null;
     
@@ -116,8 +114,8 @@ public class Utilitaire {
         return null;
     }
 
-    public byte[] fileToBytes(Part filePart) throws IOException {
-        byte[] bytes = null;
+    public byte [] fileToBytes(Part filePart) throws IOException {
+        byte [] bytes = null;
         String fileName = this.getFileName(filePart);
     
         InputStream fileContent = filePart.getInputStream();
