@@ -23,6 +23,7 @@ import etu1885.framework.Mapping;
 import etu1885.framework.ModelView;
 import etu1885.FileUpload;
 import etu1885.Parametre;
+import etu1885.Scope;
 
 import java.util.List;
 import java.util.Map;
@@ -68,6 +69,13 @@ public class FrontServlet extends HttpServlet {
                 String name = file.getName() + "." + attributs[j];
                 try {
                     Class c = Class.forName(name);
+
+                    if(c.isAnnotationPresent(Scope.class)) {
+                        Object obj = null;
+                        String className = c.getName();
+                        singletons.put(className, obj);
+                    }
+
                     Method[] m = c.getDeclaredMethods();
                     for (int k = 0; k < m.length; k++) {
                         if (m[k].isAnnotationPresent(URLs.class)) {
