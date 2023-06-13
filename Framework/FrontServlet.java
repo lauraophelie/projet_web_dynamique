@@ -108,91 +108,98 @@ public class FrontServlet extends HttpServlet {
         }
         return null;
     }
+
+    protected Object modelView(String value, HttpServletRequest request) throws Exception {
+        Object obj = null;
+        Mapping m = this.getMapping(value);
+        if(m == null) {
+            throw new Exception("URL inconnue");
+        }
+        String className = m.getClassName();
+        Class c = Class.forName(className);
+        Object objet = c.newInstance();
+        Object [] argArray = null;
+        Utilitaire utilitaire = new Utilitaire();
+
+        for(Method method : c.getDeclaredMethods()) {
+            String mappingMethod = m.getMethod();
+            String methodName = method.getName();
+            if(methodName.equals(mappingMethod)) {
+                Parameter [] params = method.getParameters();
+                if(params.length > 0) { 
+                    argArray = new Object[params.length];
+                    int i = 0;
+                    for(Parameter parameter : params) {
+                        if(parameter.isAnnotationPresent(Parametre.class)) {
+                            Parametre parametre = parameter.getAnnotation(Parametre.class);
+                            String param = parametre.param();
+                            String valueParam = request.getParameter(param);
+
+                            if(valueParam != null || valueParam.isEmpty() == false) {
+                                Object valueObject = utilitaire.convertParameterToType(valueParam, parameter.getType());
+                                argArray[i] = valueObject;
+                                i++;
+                            }
+                        }
+                    }
+                    obj = method.invoke(objet, argArray);
+                } else if(params.length == 0) {
+
+                    HashMap<String, Type> attributs = utilitaire.getAttributs(c);
+
+                    for(Map.Entry<String, Type> entry : attributs.entrySet()) {
+
+                        String name = entry.getKey();
+                        Type type = entry.getValue();
+                        String req = request.getParameter(name);
+                    
+                        if(req != null && !req.isEmpty()) {
+                            Object val = utilitaire.convertParameterToType(req, type);
+                            Field f = objet.getClass().getDeclaredField(name);
+                            f.setAccessible(true);
+                            f.set(objet, val);
+                        }
+                        if(name == "file") {
+                            try {
+                                Part filePart = request.getPart("file");
+                                FileUpload upload = getFileUploaded(filePart);
+
+                                Field f = objet.getClass().getDeclaredField(name);
+                                f.setAccessible(true);
+                                f.set(objet, upload);
+                            } catch (Exception e) {
+                                System.out.println(e.getMessage());
+                            }
+                        }
+                        obj = c.getMethod(m.getMethod()).invoke(c.newInstance());
+                    }
+                }
+            }
+        }
+        return obj;
+    }
+
+    protected FileUpload getFileUploaded(Part filePart) throws IOException {
+        Utilitaire utilitaire = new Utilitaire();
+        String fileName = utilitaire.getFileName(filePart);
+        byte [] fileContent = utilitaire.fileToBytes(filePart);
+        filePart.getInputStream().close();
+
+        FileUpload upload = new FileUpload();
+        upload.setName(fileName);
+        upload.setBytes(fileContent);
+        return upload;
+    }
     
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
         try {
-
             Utilitaire utilitaire = new Utilitaire();
             String url = request.getRequestURL().toString();
             String value = utilitaire.getUrlValues(url);
 
-            Mapping m = this.getMapping(value);
-
-            if(m == null) {
-                throw new Exception("URL inconnue");
-            }
-            Class c = Class.forName(m.getClassName());
-            Object obj = null;
-            
-            if(m.getMethod().contains("save") == false) {
-                Object o = c.newInstance();
-                Object [] argArray = null;
-                for(Method method : c.getDeclaredMethods()) {
-                    if(method.getName().equals(m.getMethod())) {
-                        Parameter [] params = method.getParameters();
-                        if(params.length > 0) {
-                            argArray = new Object[params.length];
-                            int i = 0;
-                            for(Parameter parameter : params) {
-                                if(parameter.isAnnotationPresent(Parametre.class)) {
-                                    Parametre parametre = parameter.getAnnotation(Parametre.class);
-                                    String valueParam = request.getParameter(parametre.param());
-                                    
-                                    if(valueParam != null || valueParam.isEmpty() == false) {
-                                        Object valueObject = utilitaire.convertParameterToType(valueParam, parameter.getType());
-                                        argArray[i] = valueObject;
-                                        i++;
-                                    }
-                                }
-                            }
-                            obj = method.invoke(o, argArray);
-                        } else if(params.length == 0) {
-                            obj = c.getMethod(m.getMethod()).invoke(c.newInstance());
-                        }
-                    }
-                }
-            } else {
-                HashMap<String, Type> attributs = utilitaire.getAttributs(c);
-                Object objet = c.newInstance();
-
-                for (Map.Entry<String, Type> entry : attributs.entrySet()) {
-
-                    String name = entry.getKey();
-                    Type type = entry.getValue();
-                    String req = request.getParameter(name);
-                    
-                    if (req != null && !req.isEmpty()) {
-                        Object val = utilitaire.convertParameterToType(req, type);
-                        Field f = objet.getClass().getDeclaredField(name);
-                        f.setAccessible(true);
-                        f.set(objet, val);
-                    }
-                    if(name == "file") {
-                        try {
-                            Part filePart = request.getPart("file");
-                            String fileName = utilitaire.getFileName(filePart);
-
-                            byte [] fileContent = utilitaire.fileToBytes(filePart);
-                            filePart.getInputStream().close();
-
-                            FileUpload upload = new FileUpload();
-
-                            upload.setName(fileName);
-                            upload.setBytes(fileContent);
-
-                            Field f = objet.getClass().getDeclaredField(name);
-                            f.setAccessible(true);
-                            f.set(objet, upload);
-                        } catch (Exception e) {
-                            System.out.println(e.getMessage());
-                        }
-                    }
-                }                
-                Method saveMethod = c.getMethod(m.getMethod(), objet.getClass());
-                obj = saveMethod.invoke(c.newInstance(), objet);
-            }
+            Object obj = this.modelView(value, request);
             ModelView mv = (ModelView) obj;
 
             HashMap<String, Object> data = mv.getData();
