@@ -137,7 +137,42 @@ public class Utilitaire {
         }
     }    
 
-    public void resetAttributes(Object obj) {
+    public static void resetAttributes(Object obj) {
+        Class<?> objClass = obj.getClass();
+        Field [] fields = objClass.getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            try {
+                Class<?> fieldType = field.getType();
+                Object defaultValue = getDefaultValue(fieldType);
+                field.set(obj, defaultValue);
+            } catch(IllegalAccessException e) {
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
 
+    public static Object getDefaultValue(Class<?> fieldType) {
+        if (fieldType.isPrimitive()) {
+            if (fieldType == boolean.class) {
+                return false;
+            } else if (fieldType == byte.class) {
+                return (byte) 0;
+            } else if (fieldType == short.class) {
+                return (short) 0;
+            } else if (fieldType == int.class) {
+                return 0;
+            } else if (fieldType == long.class) {
+                return 0L;
+            } else if (fieldType == float.class) {
+                return 0.0f;
+            } else if (fieldType == double.class) {
+                return 0.0;
+            } else if (fieldType == char.class) {
+                return '\u0000';
+            }
+        }
+        return null;
     }
 }
