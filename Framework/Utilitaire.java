@@ -1,7 +1,11 @@
 package etu1885.framework;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -12,11 +16,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import java.lang.reflect.Type;
+import javax.servlet.http.Part;
 
 public class Utilitaire {
 
     public String getUrlValues(String url) {
-        
         URI uri = URI.create(url);
         String uriPath = uri.getPath();
         String [] values = uriPath.split("/");
@@ -94,13 +98,48 @@ public class Utilitaire {
         return value;
     }
 
-    public static String firstLetter(String str) {
-        if (str == null || str.isEmpty()) {
-            return str;
+    public String getFileName(Part part) {
+        String contentDisposition = part.getHeader("Content-Disposition");
+        System.out.println("Content-Disposition: " + contentDisposition);
+        String [] elements = contentDisposition.split(";");
+    
+        for (String element : elements) {
+            if (element.trim().startsWith("filename")) {
+                String fileName = element.substring(element.indexOf('=') + 1).trim();
+                if (fileName.startsWith("\"") && fileName.endsWith("\"")) {
+                    fileName = fileName.substring(1, fileName.length() - 1);
+                }
+                System.out.println("File name: " + fileName);
+                return fileName;
+            }
         }
-        return str.substring(0, 1).toUpperCase() + str.substring(1);
+        return null;
     }
+
+    public byte[] fileToBytes(Part filePart) throws IOException {
+        byte[] bytes = null;
+        String fileName = this.getFileName(filePart);
     
+        InputStream fileContent = filePart.getInputStream();
+        ByteArrayOutputStream fileOutput = new ByteArrayOutputStream();
     
+        try {
+            bytes = new byte[4096];
+            int bytesRead;
     
+            while ((bytesRead = fileContent.read(bytes)) != -1) {
+                fileOutput.write(bytes, 0, bytesRead);
+            }
+    
+            byte[] fileBytes = fileOutput.toByteArray();
+            return fileBytes;
+        } finally {
+            fileContent.close();
+            fileOutput.close();
+        }
+    }    
+
+    public void resetAttributes(Object obj) {
+
+    }
 }

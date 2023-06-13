@@ -21,11 +21,18 @@ import etu1885.URLs;
 import javax.servlet.RequestDispatcher;
 import etu1885.framework.Mapping;
 import etu1885.framework.ModelView;
+import etu1885.FileUpload;
 import etu1885.Parametre;
 
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.Part;
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet("/upload")
+@MultipartConfig
 public class FrontServlet extends HttpServlet {
 
     HashMap<String, Mapping> mappingUrls;
@@ -116,7 +123,6 @@ public class FrontServlet extends HttpServlet {
                                     if(valueParam != null || valueParam.isEmpty() == false) {
                                         Object valueObject = utilitaire.convertParameterToType(valueParam, parameter.getType());
                                         argArray[i] = valueObject;
-                                        //obj = method.invoke(o, valueObject);
                                         i++;
                                     }
                                 }
@@ -136,12 +142,32 @@ public class FrontServlet extends HttpServlet {
                     String name = entry.getKey();
                     Type type = entry.getValue();
                     String req = request.getParameter(name);
-
+                    
                     if (req != null && !req.isEmpty()) {
                         Object val = utilitaire.convertParameterToType(req, type);
                         Field f = objet.getClass().getDeclaredField(name);
                         f.setAccessible(true);
                         f.set(objet, val);
+                    }
+                    if(name == "file") {
+                        try {
+                            Part filePart = request.getPart("file");
+                            String fileName = utilitaire.getFileName(filePart);
+
+                            byte [] fileContent = utilitaire.fileToBytes(filePart);
+                            filePart.getInputStream().close();
+
+                            FileUpload upload = new FileUpload();
+
+                            upload.setName(fileName);
+                            upload.setBytes(fileContent);
+
+                            Field f = objet.getClass().getDeclaredField(name);
+                            f.setAccessible(true);
+                            f.set(objet, upload);
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
+                        }
                     }
                 }                
                 Method saveMethod = c.getMethod(m.getMethod(), objet.getClass());
