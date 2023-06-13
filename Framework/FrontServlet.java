@@ -36,8 +36,8 @@ import javax.servlet.annotation.WebServlet;
 @MultipartConfig
 public class FrontServlet extends HttpServlet {
 
-    HashMap<String, Mapping> mappingUrls;
-    HashMap<String, Object> singletons;
+    private HashMap<String, Mapping> mappingUrls;
+    private HashMap<String, Object> singletons;
 
     public void init() throws ServletException {
         
@@ -94,6 +94,20 @@ public class FrontServlet extends HttpServlet {
             }
         } 
     }
+
+    public boolean isSingleton(String className) {
+        for(String key : singletons.keySet()) {
+            if(key.equals(className)) return true;
+        }
+        return false;
+    }
+
+    public Mapping getMapping(String value) {
+        if(mappingUrls.containsKey(value)) {
+            return mappingUrls.get(value);
+        }
+        return null;
+    }
     
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -104,16 +118,11 @@ public class FrontServlet extends HttpServlet {
             String url = request.getRequestURL().toString();
             String value = utilitaire.getUrlValues(url);
 
-            Mapping m = new Mapping();
+            Mapping m = this.getMapping(value);
 
-            for(Map.Entry<String, Mapping> entry : mappingUrls.entrySet()) {
-                String key = entry.getKey();
-                String valeur = entry.getValue().getClassName();
+            if(m == null) {
+                throw new Exception("URL inconnue");
             }
-                
-            if (mappingUrls.containsKey(value)) m = mappingUrls.get(value);
-            else out.println("URL inconnue");
-
             Class c = Class.forName(m.getClassName());
             Object obj = null;
 
