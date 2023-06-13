@@ -42,6 +42,7 @@ public class FrontServlet extends HttpServlet {
     public void init() throws ServletException {
         
         mappingUrls = new HashMap<String, Mapping>();
+        singletons = new HashMap<String, Object>();
         
         ServletContext context = this.getServletContext();
         String contextPath = context != null ? context.getRealPath("") : null;
@@ -71,6 +72,7 @@ public class FrontServlet extends HttpServlet {
                     Class c = Class.forName(name);
 
                     if(c.isAnnotationPresent(Scope.class)) {
+                        System.out.println("Singleton found : " + c.getName());
                         Object obj = null;
                         String className = c.getName();
                         singletons.put(className, obj);
@@ -87,7 +89,7 @@ public class FrontServlet extends HttpServlet {
                         }
                     }
                 } catch (ClassNotFoundException e) {
-                    
+                   
                 }
             }
         } 
