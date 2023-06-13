@@ -128,7 +128,6 @@ public class Utilitaire {
             int bytesRead;
     
             while ((bytesRead = fileContent.read(bytes)) != -1) {
-                System.out.println("read " + bytesRead + " bytes");
                 fileOutput.write(bytes, 0, bytesRead);
             }
     
