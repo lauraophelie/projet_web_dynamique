@@ -125,7 +125,7 @@ public class FrontServlet extends HttpServlet {
             }
             Class c = Class.forName(m.getClassName());
             Object obj = null;
-
+            
             if(m.getMethod().contains("save") == false) {
                 Object o = c.newInstance();
                 Object [] argArray = null;
@@ -153,7 +153,7 @@ public class FrontServlet extends HttpServlet {
                         }
                     }
                 }
-            } else{
+            } else {
                 HashMap<String, Type> attributs = utilitaire.getAttributs(c);
                 Object objet = c.newInstance();
 
