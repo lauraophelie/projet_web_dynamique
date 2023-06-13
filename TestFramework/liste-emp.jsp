@@ -34,6 +34,11 @@
         </tr>
     <% } %> 
     </table>
-    <a href="./formulaire-emp.jsp"> Formulaire d'insertion </a>
+    <p>
+        <a href="./formulaire-emp.jsp"> Formulaire d'insertion </a>
+    </p>
+    <p>
+        <a href="./info-dept.jsp"> Dept </a>
+    </p>
 </body>
 </html>

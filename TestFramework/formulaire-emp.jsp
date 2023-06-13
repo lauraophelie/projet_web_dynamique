@@ -10,7 +10,7 @@
 </head>
 <body>
     <h1> Formulaire d'insertion </h1>
-    <form method="get" action="emp-save">
+    <form method="post" action="emp-save">
         <p> Nom : <input type="text" name="nom"/> </p>
         <p> Salaire : <input type="text" name="salaire"/> </p>
         <p> <input type="submit" value="Valider"/> </p>
