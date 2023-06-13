@@ -144,7 +144,7 @@ public class FrontServlet extends HttpServlet {
                     }
                     obj = method.invoke(objet, argArray);
                 } else if(params.length == 0) {
-
+                    
                     HashMap<String, Type> attributs = utilitaire.getAttributs(c);
 
                     for(Map.Entry<String, Type> entry : attributs.entrySet()) {
@@ -171,7 +171,7 @@ public class FrontServlet extends HttpServlet {
                                 System.out.println(e.getMessage());
                             }
                         }
-                        obj = c.getMethod(m.getMethod()).invoke(c.newInstance());
+                        obj = c.getMethod(m.getMethod()).invoke(objet);
                     }
                 }
             }
