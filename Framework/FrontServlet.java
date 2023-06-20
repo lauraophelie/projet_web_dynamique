@@ -51,7 +51,7 @@ public class FrontServlet extends HttpServlet {
             contextPath = new File("").getAbsolutePath();
         }
         File webInfDirectory = new File(contextPath, "WEB-INF");
-        List<File> files = new Utilitaire().getFiles(webInfDirectory.getAbsolutePath());
+        List<File> files = Utilitaire.getFiles(webInfDirectory.getAbsolutePath());
 
         
         for(File file : files) {
@@ -133,8 +133,6 @@ public class FrontServlet extends HttpServlet {
         Object objet = c.newInstance();
         Object [] argArray = null;
 
-        Utilitaire utilitaire = new Utilitaire();
-
         for(Method method : c.getDeclaredMethods()) {
             String mappingMethod = m.getMethod();
             String methodName = method.getName();
@@ -152,7 +150,7 @@ public class FrontServlet extends HttpServlet {
                             String valueParam = request.getParameter(param);
 
                             if(valueParam != null || valueParam.isEmpty() == false) {
-                                Object valueObject = utilitaire.convertParameterToType(valueParam, parameter.getType());
+                                Object valueObject = Utilitaire.convertParameterToType(valueParam, parameter.getType());
                                 argArray[i] = valueObject;
                                 i++;
                             }
@@ -160,7 +158,7 @@ public class FrontServlet extends HttpServlet {
                     }
                     obj = method.invoke(objet, argArray); // appel fonction miaraka @ tableau de paramètre 
                 } else if(params.length == 0) { // raha tsy misy paramètre ilay méthode 
-                    HashMap<String, Type> attributs = utilitaire.getAttributs(c);
+                    HashMap<String, Type> attributs = Utilitaire.getAttributs(c);
 
                     for(Map.Entry<String, Type> entry : attributs.entrySet()) {
 
@@ -169,7 +167,7 @@ public class FrontServlet extends HttpServlet {
                         String req = request.getParameter(name);
                     
                         if(req != null && !req.isEmpty()) { // set 
-                            Object val = utilitaire.convertParameterToType(req, type);
+                            Object val = Utilitaire.convertParameterToType(req, type);
                             Field f = objet.getClass().getDeclaredField(name);
                             f.setAccessible(true);
                             f.set(objet, val);
@@ -196,17 +194,15 @@ public class FrontServlet extends HttpServlet {
 
 /// upload de fichier
     protected FileUpload getFileUploaded(Part filePart) throws IOException {
-        Utilitaire utilitaire = new Utilitaire();
-
-        String fileName = utilitaire.getFileName(filePart); // nom de fichier 
-        byte [] fileContent = utilitaire.fileToBytes(filePart); // tableau de bytes 
+        String fileName = Utilitaire.getFileName(filePart); // nom de fichier 
+        byte [] fileContent = Utilitaire.fileToBytes(filePart); // tableau de bytes 
 
         filePart.getInputStream().close();
 
         FileUpload upload = new FileUpload();
         upload.setName(fileName);
         upload.setBytes(fileContent);
-        
+
         return upload;
     }
     
@@ -214,9 +210,8 @@ public class FrontServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
         try {
-            Utilitaire utilitaire = new Utilitaire();
             String url = request.getRequestURL().toString();
-            String value = utilitaire.getUrlValues(url);
+            String value = Utilitaire.getUrlValues(url);
 
             Object obj = this.modelView(value, request);
             ModelView mv = (ModelView) obj;

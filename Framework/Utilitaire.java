@@ -21,7 +21,7 @@ import javax.servlet.http.Part;
 public class Utilitaire {
 
 /// get @ urls 
-    public String getUrlValues(String url) {
+    public static String getUrlValues(String url) {
         URI uri = URI.create(url);
         String uriPath = uri.getPath();
         String [] values = uriPath.split("/");
@@ -36,7 +36,7 @@ public class Utilitaire {
     }
 
 /// get files atao ao @ hashmap 
-    public List<File> getFiles(String path) {
+    public static List<File> getFiles(String path) {
         List<File> files = new ArrayList<File>();
         File [] f = new File(path).listFiles();
         for (int i = 0; i < f.length; i++) {
@@ -50,7 +50,7 @@ public class Utilitaire {
     }
 
 /// get attributs + type @ classe 
-    public HashMap<String, Type> getAttributs(Class<?> clazz) {
+    public static HashMap<String, Type> getAttributs(Class<?> clazz) {
         HashMap<String, Type> attributs = new HashMap<>();
         Field [] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
@@ -62,7 +62,7 @@ public class Utilitaire {
     }
 
 /// cast types en fonction @ lay type 
-    public Object convertParameterToType(String parameter, Type type) {
+    public static Object convertParameterToType(String parameter, Type type) {
         Object value = null;
     
         if (type == int.class || type == Integer.class) {
@@ -101,7 +101,7 @@ public class Utilitaire {
     }
 
 /// maka ny anaran'ilay file ho atao upload
-    public String getFileName(Part part) {
+    public static String getFileName(Part part) {
         String contentDisposition = part.getHeader("Content-Disposition");
         System.out.println("Content-Disposition: " + contentDisposition);
         String [] elements = contentDisposition.split(";");
@@ -120,9 +120,9 @@ public class Utilitaire {
     }
 
 /// mamadika file ho tableau de bytes 
-    public byte [] fileToBytes(Part filePart) throws IOException {
+    public static byte [] fileToBytes(Part filePart) throws IOException {
         byte [] bytes = null;
-        String fileName = this.getFileName(filePart);
+        String fileName = getFileName(filePart);
     
         InputStream fileContent = filePart.getInputStream();
         ByteArrayOutputStream fileOutput = new ByteArrayOutputStream();
