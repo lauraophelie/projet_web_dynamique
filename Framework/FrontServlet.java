@@ -109,6 +109,10 @@ public class FrontServlet extends HttpServlet {
         return singletons.get(className);
     }
 
+    public void setInstance(String className, Object instance) {
+        singletons.put(className, instance);
+    }
+
 /// get mapping ao @ mappingURls
     public Mapping getMapping(String value) {
         if(mappingUrls.containsKey(value)) {
@@ -121,14 +125,30 @@ public class FrontServlet extends HttpServlet {
     protected Object modelView(String value, HttpServletRequest request) throws Exception {
 
         Object obj = null;
-        Mapping m = this.getMapping(value); // get objet Mapping ao @ HashMap
+        Mapping m = this.getMapping(value); // Récupérer l'objet Mapping à partir du HashMap
 
-        if(m == null) {
-            throw new Exception("URL inconnue"); // l'url n'est pas dans le hashmap
+        if (m == null) {
+            throw new Exception("URL inconnue"); // L'URL n'est pas dans le hashmap
         }
 
         String className = m.getClassName();
-        Class c = Class.forName(className);
+        Class<?> c = Class.forName(className);
+
+        if (isSingleton(className)) {
+            obj = getInstance(className); // Obtenir l'instance à partir du HashMap des singletons
+
+            if (obj == null) {
+                System.out.println("Instanciation d'un nouveau singleton : " + className);
+                obj = c.newInstance();
+                setInstance(className, obj); // Mettre à jour l'instance dans le HashMap si elle est null
+            } else {
+                System.out.println("Utilisation de l'instance existante du singleton : " + className);
+            }
+        } else {
+            System.out.println("Instanciation d'un nouvel objet : " + className);
+            obj = c.newInstance();
+        }
+        Utilitaire.resetAttributes(obj);
 
         Object objet = c.newInstance();
         Object [] argArray = null;
