@@ -39,6 +39,7 @@ public class FrontServlet extends HttpServlet {
     private HashMap<String, Mapping> mappingUrls;
     private HashMap<String, Object> singletons;
 
+/// scan packages 
     public void init() throws ServletException {
         
         mappingUrls = new HashMap<String, Mapping>();
@@ -71,21 +72,22 @@ public class FrontServlet extends HttpServlet {
                 try {
                     Class c = Class.forName(name);
 
-                    if(c.isAnnotationPresent(Scope.class)) {
+
+                    if(c.isAnnotationPresent(Scope.class)) { // test : annotation @scope
                         System.out.println("Singleton found : " + c.getName());
                         Object obj = null;
                         String className = c.getName();
-                        singletons.put(className, obj);
+                        singletons.put(className, obj); // raha singleton 
                     }
 
                     Method[] m = c.getDeclaredMethods();
                     for (int k = 0; k < m.length; k++) {
-                        if (m[k].isAnnotationPresent(URLs.class)) {
+                        if (m[k].isAnnotationPresent(URLs.class)) { // test : méthode annotée @URLs 
                             String url = m[k].getAnnotation(URLs.class).url();
                             String className = c.getName();
                             String methodName = m[k].getName();
                             Mapping map = new Mapping(className, methodName);
-                            mappingUrls.put(url, map);
+                            mappingUrls.put(url, map); // raha annotée @URLs
                         }
                     }
                 } catch (ClassNotFoundException e) {
@@ -95,6 +97,7 @@ public class FrontServlet extends HttpServlet {
         } 
     }
 
+/// vérification hoe singleton sa tsia
     public boolean isSingleton(String className) {
         for(String key : singletons.keySet()) {
             if(key.equals(className)) return true;
@@ -106,6 +109,7 @@ public class FrontServlet extends HttpServlet {
         return singletons.get(className);
     }
 
+/// get mapping ao @ mappingURls
     public Mapping getMapping(String value) {
         if(mappingUrls.containsKey(value)) {
             return mappingUrls.get(value);
@@ -113,26 +117,34 @@ public class FrontServlet extends HttpServlet {
         return null;
     }
 
+/// ilay objet ho avadika ModelView
     protected Object modelView(String value, HttpServletRequest request) throws Exception {
+
         Object obj = null;
-        Mapping m = this.getMapping(value);
+        Mapping m = this.getMapping(value); // get objet Mapping ao @ HashMap
+
         if(m == null) {
-            throw new Exception("URL inconnue");
+            throw new Exception("URL inconnue"); // l'url n'est pas dans le hashmap
         }
+
         String className = m.getClassName();
         Class c = Class.forName(className);
+
         Object objet = c.newInstance();
         Object [] argArray = null;
+
         Utilitaire utilitaire = new Utilitaire();
 
         for(Method method : c.getDeclaredMethods()) {
             String mappingMethod = m.getMethod();
             String methodName = method.getName();
+
             if(methodName.equals(mappingMethod)) {
                 Parameter [] params = method.getParameters();
-                if(params.length > 0) { 
+                if(params.length > 0) {  // raha misy paramètre ilay méthode 
                     argArray = new Object[params.length];
                     int i = 0;
+                    
                     for(Parameter parameter : params) {
                         if(parameter.isAnnotationPresent(Parametre.class)) {
                             Parametre parametre = parameter.getAnnotation(Parametre.class);
@@ -146,8 +158,8 @@ public class FrontServlet extends HttpServlet {
                             }
                         }
                     }
-                    obj = method.invoke(objet, argArray);
-                } else if(params.length == 0) {
+                    obj = method.invoke(objet, argArray); // appel fonction miaraka @ tableau de paramètre 
+                } else if(params.length == 0) { // raha tsy misy paramètre ilay méthode 
                     HashMap<String, Type> attributs = utilitaire.getAttributs(c);
 
                     for(Map.Entry<String, Type> entry : attributs.entrySet()) {
@@ -156,25 +168,25 @@ public class FrontServlet extends HttpServlet {
                         Type type = entry.getValue();
                         String req = request.getParameter(name);
                     
-                        if(req != null && !req.isEmpty()) {
+                        if(req != null && !req.isEmpty()) { // set 
                             Object val = utilitaire.convertParameterToType(req, type);
                             Field f = objet.getClass().getDeclaredField(name);
                             f.setAccessible(true);
                             f.set(objet, val);
                         }
-                        if(name == "file") {
+                        if(name == "file") { // raha file ny name @ attributs 
                             try {
                                 Part filePart = request.getPart("file");
-                                FileUpload upload = getFileUploaded(filePart);
+                                FileUpload upload = getFileUploaded(filePart); // upload file 
 
-                                Field f = objet.getClass().getDeclaredField(name);
+                                Field f = objet.getClass().getDeclaredField(name); // set 
                                 f.setAccessible(true);
                                 f.set(objet, upload);
                             } catch (Exception e) {
                                 System.out.println(e.getMessage());
                             }
                         }
-                        obj = c.getMethod(m.getMethod()).invoke(objet);
+                        obj = c.getMethod(m.getMethod()).invoke(objet); // invoke @ methode 
                     }
                 }
             }
@@ -182,15 +194,19 @@ public class FrontServlet extends HttpServlet {
         return obj;
     }
 
+/// upload de fichier
     protected FileUpload getFileUploaded(Part filePart) throws IOException {
         Utilitaire utilitaire = new Utilitaire();
-        String fileName = utilitaire.getFileName(filePart);
-        byte [] fileContent = utilitaire.fileToBytes(filePart);
+
+        String fileName = utilitaire.getFileName(filePart); // nom de fichier 
+        byte [] fileContent = utilitaire.fileToBytes(filePart); // tableau de bytes 
+
         filePart.getInputStream().close();
 
         FileUpload upload = new FileUpload();
         upload.setName(fileName);
         upload.setBytes(fileContent);
+        
         return upload;
     }
     
