@@ -102,6 +102,10 @@ public class FrontServlet extends HttpServlet {
         return false;
     }
 
+    public Object getInstance(String className) {
+        return singletons.get(className);
+    }
+
     public Mapping getMapping(String value) {
         if(mappingUrls.containsKey(value)) {
             return mappingUrls.get(value);
@@ -144,7 +148,6 @@ public class FrontServlet extends HttpServlet {
                     }
                     obj = method.invoke(objet, argArray);
                 } else if(params.length == 0) {
-                    
                     HashMap<String, Type> attributs = utilitaire.getAttributs(c);
 
                     for(Map.Entry<String, Type> entry : attributs.entrySet()) {
