@@ -15,6 +15,8 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import com.google.gson.Gson;
+
 import java.lang.reflect.Type;
 import javax.servlet.http.Part;
 
@@ -181,5 +183,9 @@ public class Utilitaire {
             }
         }
         return null;
+    }
+
+    public static String objectToJson(Object object) {
+        return new Gson().toJson(object);
     }
 }

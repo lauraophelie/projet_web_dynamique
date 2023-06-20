@@ -245,8 +245,15 @@ public class FrontServlet extends HttpServlet {
                     request.setAttribute(key, val);
                 }
             } 
-            RequestDispatcher dispat = request.getRequestDispatcher(mv.getView());
-            dispat.forward(request, response);
+            if(mv.isJson() == false) {
+                RequestDispatcher dispat = request.getRequestDispatcher(mv.getView());
+                dispat.forward(request, response);
+            } else {
+                response.setContentType("application/json");
+                PrintWriter writer = response.getWriter();
+                String json = Utilitaire.objectToJson(data);
+                writer.println(json);
+            }
             
         } catch(Exception e) {
             System.out.println(e.getMessage());
