@@ -20,7 +20,8 @@ import javax.servlet.http.Part;
 
 public class Utilitaire {
 
-    public String getUrlValues(String url) {
+/// get @ urls 
+    public static String getUrlValues(String url) {
         URI uri = URI.create(url);
         String uriPath = uri.getPath();
         String [] values = uriPath.split("/");
@@ -33,8 +34,9 @@ public class Utilitaire {
         
         return value;
     }
-    
-    public List<File> getFiles(String path) {
+
+/// get files atao ao @ hashmap 
+    public static List<File> getFiles(String path) {
         List<File> files = new ArrayList<File>();
         File [] f = new File(path).listFiles();
         for (int i = 0; i < f.length; i++) {
@@ -47,7 +49,8 @@ public class Utilitaire {
         return files;
     }
 
-    public HashMap<String, Type> getAttributs(Class<?> clazz) {
+/// get attributs + type @ classe 
+    public static HashMap<String, Type> getAttributs(Class<?> clazz) {
         HashMap<String, Type> attributs = new HashMap<>();
         Field [] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
@@ -58,9 +61,8 @@ public class Utilitaire {
         return attributs;
     }
 
-    
-
-    public Object convertParameterToType(String parameter, Type type) {
+/// cast types en fonction @ lay type 
+    public static Object convertParameterToType(String parameter, Type type) {
         Object value = null;
     
         if (type == int.class || type == Integer.class) {
@@ -98,7 +100,8 @@ public class Utilitaire {
         return value;
     }
 
-    public String getFileName(Part part) {
+/// maka ny anaran'ilay file ho atao upload
+    public static String getFileName(Part part) {
         String contentDisposition = part.getHeader("Content-Disposition");
         System.out.println("Content-Disposition: " + contentDisposition);
         String [] elements = contentDisposition.split(";");
@@ -116,9 +119,10 @@ public class Utilitaire {
         return null;
     }
 
-    public byte[] fileToBytes(Part filePart) throws IOException {
-        byte[] bytes = null;
-        String fileName = this.getFileName(filePart);
+/// mamadika file ho tableau de bytes 
+    public static byte [] fileToBytes(Part filePart) throws IOException {
+        byte [] bytes = null;
+        String fileName = getFileName(filePart);
     
         InputStream fileContent = filePart.getInputStream();
         ByteArrayOutputStream fileOutput = new ByteArrayOutputStream();
@@ -131,7 +135,7 @@ public class Utilitaire {
                 fileOutput.write(bytes, 0, bytesRead);
             }
     
-            byte[] fileBytes = fileOutput.toByteArray();
+            byte [] fileBytes = fileOutput.toByteArray();
             return fileBytes;
         } finally {
             fileContent.close();
@@ -139,7 +143,43 @@ public class Utilitaire {
         }
     }    
 
-    public void resetAttributes(Object obj) {
+/// valeurs par défaut attributs @ objet 
+    public static void resetAttributes(Object obj) {
+        Class<?> objClass = obj.getClass();
+        Field [] fields = objClass.getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            try {
+                Class<?> fieldType = field.getType();
+                Object defaultValue = getDefaultValue(fieldType);
+                field.set(obj, defaultValue);
+            } catch(IllegalAccessException e) {
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
 
+    public static Object getDefaultValue(Class<?> fieldType) {
+        if (fieldType.isPrimitive()) {
+            if (fieldType == boolean.class) {
+                return false;
+            } else if (fieldType == byte.class) {
+                return (byte) 0;
+            } else if (fieldType == short.class) {
+                return (short) 0;
+            } else if (fieldType == int.class) {
+                return 0;
+            } else if (fieldType == long.class) {
+                return 0L;
+            } else if (fieldType == float.class) {
+                return 0.0f;
+            } else if (fieldType == double.class) {
+                return 0.0;
+            } else if (fieldType == char.class) {
+                return '\u0000';
+            }
+        }
+        return null;
     }
 }
