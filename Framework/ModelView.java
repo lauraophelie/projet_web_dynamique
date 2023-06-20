@@ -14,9 +14,20 @@ public class ModelView {
           this.view = view;
      }
 
+     boolean isJson;
+
+     public boolean isJson() {
+          return isJson;
+     }
+
+     public void setJson(boolean isJson) {
+          this.isJson = isJson;
+     }
+
      public ModelView() {}
      public ModelView(String view) {
           this.setView(view);
+          this.setJson(false);
      }
 
      HashMap<String, Object> data = new HashMap<String, Object>();
