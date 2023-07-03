@@ -25,6 +25,7 @@ import etu1885.framework.ModelView;
 import etu1885.FileUpload;
 import etu1885.Parametre;
 import etu1885.Scope;
+import etu1885.Auth;
 
 import java.util.List;
 import java.util.Map;
@@ -122,12 +123,19 @@ public class FrontServlet extends HttpServlet {
         return null;
     }
 
-    public boolean isJson(String className) throws ClassNotFoundException {
-        Class<?> clazz = Class.forName(className);
-        for (Method method : clazz.getDeclaredMethods()) {
-            if(method.isAnnotationPresent(JSon.class)) {
-                return true;
-            }
+    public boolean isJson(Mapping m) throws Exception {
+        Class<?> clazz = Class.forName(m.getClassName());
+        Method method = clazz.getDeclaredMethod(m.getMethod());
+        if(method.isAnnotationPresent(JSon.class)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isConnected(ModelView modelView) {
+        String cessionName = this.getInitParameter("cessionName");
+        if(modelView.getSession().containsKey(cessionName)) {
+            return true;
         }
         return false;
     }
@@ -243,18 +251,36 @@ public class FrontServlet extends HttpServlet {
             String url = request.getRequestURL().toString();
             String value = Utilitaire.getUrlValues(url);
             Mapping mapping = this.getMapping(value);
+
             Object obj = this.modelView(mapping, request);
 
             String className = mapping.getClassName();
 
-            if(this.isJson(className) == true) {
+            if(this.isJson(mapping) == true) {
                 response.setContentType("application/json");
                 PrintWriter writer = response.getWriter();
                 String json = Utilitaire.objectToJson(obj);
                 writer.println(json);
             } else {
                 ModelView mv = (ModelView) obj;
+                Method method = Class.forName(className).getDeclaredMethod(mapping.getMethod());
 
+                if(method.isAnnotationPresent(Auth.class)) {
+                    System.out.println("Session : " + this.getInitParameter("cessionName"));
+                    /*if(this.isConnected(mv)) {
+                        String auth = method.getAnnotation(Auth.class).value();
+                        if(auth != null || !auth.isEmpty()) {
+                            String profile = this.getInitParameter("profileName");
+                            if(auth.equalsIgnoreCase(profile)) {
+                                System.out.println(auth);
+                            } else {
+                                throw new Exception("Votre profil n'est pas autorisé");
+                            }
+                        }
+                    } else {
+                        throw new Exception("Vous devez vous connecter");
+                    }*/
+                }
                 HashMap<String, Object> data = mv.getData();
 
                 if(data.isEmpty() == false || data != null) {
@@ -275,7 +301,7 @@ public class FrontServlet extends HttpServlet {
                 }
             }
         } catch(Exception e) {
-            System.out.println(e.getMessage());
+            out.println(e.getMessage());
             e.printStackTrace();
         }
     }
