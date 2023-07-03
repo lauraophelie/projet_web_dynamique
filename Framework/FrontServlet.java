@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import etu1885.framework.Utilitaire;
 import etu1885.URLs;
+import etu1885.JSon;
 import javax.servlet.RequestDispatcher;
 import etu1885.framework.Mapping;
 import etu1885.framework.ModelView;
@@ -121,11 +122,20 @@ public class FrontServlet extends HttpServlet {
         return null;
     }
 
+    public boolean isJson(String className) throws ClassNotFoundException {
+        Class<?> clazz = Class.forName(className);
+        for (Method method : clazz.getDeclaredMethods()) {
+            if(method.isAnnotationPresent(JSon.class)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 /// ilay objet ho avadika ModelView
-    protected Object modelView(String value, HttpServletRequest request) throws Exception {
+    protected Object modelView(Mapping m, HttpServletRequest request) throws Exception {
 
         Object obj = null;
-        Mapping m = this.getMapping(value); // Récupérer l'objet Mapping à partir du HashMap
 
         if (m == null) {
             throw new Exception("URL inconnue"); // L'URL n'est pas dans le hashmap
@@ -232,29 +242,38 @@ public class FrontServlet extends HttpServlet {
         try {
             String url = request.getRequestURL().toString();
             String value = Utilitaire.getUrlValues(url);
+            Mapping mapping = this.getMapping(value);
+            Object obj = this.modelView(mapping, request);
 
-            Object obj = this.modelView(value, request);
-            ModelView mv = (ModelView) obj;
+            String className = mapping.getClassName();
 
-            HashMap<String, Object> data = mv.getData();
-
-            if(data.isEmpty() == false || data != null) {
-                for(Map.Entry<String, Object> entry : data.entrySet()) {
-                    String key = entry.getKey();
-                    Object val = entry.getValue();
-                    request.setAttribute(key, val);
-                }
-            } 
-            if(mv.isJson() == false) {
-                RequestDispatcher dispat = request.getRequestDispatcher(mv.getView());
-                dispat.forward(request, response);
-            } else {
+            if(this.isJson(className) == true) {
                 response.setContentType("application/json");
                 PrintWriter writer = response.getWriter();
-                String json = Utilitaire.objectToJson(data);
+                String json = Utilitaire.objectToJson(obj);
                 writer.println(json);
+            } else {
+                ModelView mv = (ModelView) obj;
+
+                HashMap<String, Object> data = mv.getData();
+
+                if(data.isEmpty() == false || data != null) {
+                    for(Map.Entry<String, Object> entry : data.entrySet()) {
+                        String key = entry.getKey();
+                        Object val = entry.getValue();
+                        request.setAttribute(key, val);
+                    }
+                } 
+                if(mv.isJson() == false) {
+                    RequestDispatcher dispat = request.getRequestDispatcher(mv.getView());
+                    dispat.forward(request, response);
+                } else {
+                    response.setContentType("application/json");
+                    PrintWriter writer = response.getWriter();
+                    String json = Utilitaire.objectToJson(data);
+                    writer.println(json);
+                }
             }
-            
         } catch(Exception e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
