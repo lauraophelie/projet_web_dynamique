@@ -33,6 +33,7 @@ import java.util.Map;
 import javax.servlet.http.Part;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpSession;
 
 @WebServlet("/upload")
 @MultipartConfig
@@ -86,7 +87,7 @@ public class FrontServlet extends HttpServlet {
                         singletons.put(className, obj); // raha singleton 
                     }
 
-                    Method[] m = c.getDeclaredMethods();
+                    Method [] m = c.getDeclaredMethods();
                     for (int k = 0; k < m.length; k++) {
                         if (m[k].isAnnotationPresent(URLs.class)) { // test : méthode annotée @URLs 
                             String url = m[k].getAnnotation(URLs.class).url();
@@ -157,11 +158,10 @@ public class FrontServlet extends HttpServlet {
 
         if (isSingleton(className)) {
             obj = getInstance(className); // Obtenir l'instance à partir du HashMap des singletons
-
             if (obj == null) {
                 System.out.println("Instanciation d'un nouveau singleton : " + className);
                 obj = c.newInstance();
-                setInstance(className, obj); // Mettre à jour l'instance dans le HashMap si elle est null
+                this.setInstance(className, obj); // Mettre à jour l'instance dans le HashMap si elle est null
             } else {
                 System.out.println("Utilisation de l'instance existante du singleton : " + className);
             }
@@ -257,6 +257,7 @@ public class FrontServlet extends HttpServlet {
             String url = request.getRequestURL().toString();
             String value = Utilitaire.getUrlValues(url);
             Mapping mapping = this.getMapping(value);
+            HttpSession session = request.getSession();
 
             Object obj = this.modelView(mapping, request);
 
@@ -272,6 +273,15 @@ public class FrontServlet extends HttpServlet {
                 Method method = Class.forName(className).getDeclaredMethod(mapping.getMethod());
 
                 HashMap<String, Object> sessions = mv.getSession();
+
+                if(sessions != null || sessions.isEmpty() == false) {
+                    for(Map.Entry<String, Object> entry : sessions.entrySet()) {
+                        String key = entry.getKey();
+                        Object val = entry.getValue();
+                        session.setAttribute(key, val);
+                    }
+                }
+
                 HashMap<String, Object> data = mv.getData();
 
                 if(data.isEmpty() == false || data != null) {
