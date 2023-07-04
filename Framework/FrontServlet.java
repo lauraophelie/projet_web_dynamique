@@ -141,11 +141,9 @@ public class FrontServlet extends HttpServlet {
         return false;
     }
 
-    public boolean isConnected(ModelView modelView) {
-        if(modelView.getSession().containsKey(sessionName)) {
-            return true;
-        }
-        return false;
+/// vérifie si l'utilisateur est connecté
+    public boolean isConnected(HttpSession session) {
+        return session.getAttribute(sessionName) != null;
     }
 
     public Method getTargetMethod(Mapping mapping) throws Exception {
@@ -293,12 +291,25 @@ public class FrontServlet extends HttpServlet {
                     for(Map.Entry<String, Object> entry : sessions.entrySet()) {
                         String key = entry.getKey();
                         Object val = entry.getValue();
-                        System.out.println("key : " + key + " val : " + val);
                         session.setAttribute(key, val);
                     }
                 }
+                Method targetMethod = this.getTargetMethod(mapping);
+                System.out.println("targetMethod : " + targetMethod.getName());
 
-                String mappingMethod = mapping.getMethod();
+                /// session 
+                if(targetMethod.isAnnotationPresent(Auth.class)) {
+                    if(this.isConnected(session)) {
+                        String auth = targetMethod.getAnnotation(Auth.class).value();
+                        if(auth.isEmpty() == false || auth != null) {
+                            if(!auth.equals(session.getAttribute(profil))) {
+                                throw new Exception("Acces refuse");
+                            }
+                        }
+                    } else {
+                        throw new Exception("Vous n'etes pas connecte");
+                    }
+                }
 
                 HashMap<String, Object> data = mv.getData();
 
@@ -320,7 +331,7 @@ public class FrontServlet extends HttpServlet {
                 }
             }
         } catch(Exception e) {
-            System.out.println(e.getMessage());
+            out.println(e.getMessage());
             e.printStackTrace();
         }
     }
