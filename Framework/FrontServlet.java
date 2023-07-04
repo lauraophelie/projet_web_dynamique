@@ -148,8 +148,20 @@ public class FrontServlet extends HttpServlet {
         return false;
     }
 
+    public Method getTargetMethod(Mapping mapping) throws Exception {
+        Method targetMethod = null;
+        Class<?> targetClass = Class.forName(mapping.getClassName());
+        for (Method method : targetClass.getDeclaredMethods()) {
+            if (method.getName().equals(mapping.getMethod())) {
+                targetMethod = method;
+                break;
+            }
+        }
+        return targetMethod;
+    }
+
 /// ilay objet ho avadika ModelView
-        protected Object modelView(Mapping m, HttpServletRequest request) throws Exception {
+    protected Object modelView(Mapping m, HttpServletRequest request) throws Exception {
         Object obj = null;
 
         if (m == null) {
@@ -175,17 +187,10 @@ public class FrontServlet extends HttpServlet {
         Utilitaire.resetAttributes(obj);
 
         Object objet = c.newInstance();
-        Object[] argArray = null;
+        Object [] argArray = null;
 
         String mappingMethod = m.getMethod();
-        Method targetMethod = null;
-
-        for (Method method : c.getDeclaredMethods()) {
-            if (method.getName().equals(mappingMethod)) {
-                targetMethod = method;
-                break;
-            }
-        }
+        Method targetMethod = this.getTargetMethod(m);
 
         if (targetMethod != null) {
             Parameter[] params = targetMethod.getParameters();
