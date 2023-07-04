@@ -40,6 +40,8 @@ public class FrontServlet extends HttpServlet {
 
     private HashMap<String, Mapping> mappingUrls;
     private HashMap<String, Object> singletons;
+    private String sessionName;
+    private String profil;
 
 /// scan packages 
     public void init() throws ServletException {
@@ -55,6 +57,8 @@ public class FrontServlet extends HttpServlet {
         File webInfDirectory = new File(contextPath, "WEB-INF");
         List<File> files = Utilitaire.getFiles(webInfDirectory.getAbsolutePath());
 
+        sessionName = this.getInitParameter("sessionName");
+        profil = this.getInitParameter("profileName");
         
         for(File file : files) {
             String f = "";
@@ -133,8 +137,7 @@ public class FrontServlet extends HttpServlet {
     }
 
     public boolean isConnected(ModelView modelView) {
-        String cessionName = this.getInitParameter("cessionName");
-        if(modelView.getSession().containsKey(cessionName)) {
+        if(modelView.getSession().containsKey(sessionName)) {
             return true;
         }
         return false;
@@ -248,6 +251,9 @@ public class FrontServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
         try {
+            System.out.println("Session : " + sessionName);
+            System.out.println("Profil : " + profil);
+
             String url = request.getRequestURL().toString();
             String value = Utilitaire.getUrlValues(url);
             Mapping mapping = this.getMapping(value);
@@ -265,22 +271,7 @@ public class FrontServlet extends HttpServlet {
                 ModelView mv = (ModelView) obj;
                 Method method = Class.forName(className).getDeclaredMethod(mapping.getMethod());
 
-                if(method.isAnnotationPresent(Auth.class)) {
-                    System.out.println("Session : " + this.getInitParameter("cessionName"));
-                    /*if(this.isConnected(mv)) {
-                        String auth = method.getAnnotation(Auth.class).value();
-                        if(auth != null || !auth.isEmpty()) {
-                            String profile = this.getInitParameter("profileName");
-                            if(auth.equalsIgnoreCase(profile)) {
-                                System.out.println(auth);
-                            } else {
-                                throw new Exception("Votre profil n'est pas autorisé");
-                            }
-                        }
-                    } else {
-                        throw new Exception("Vous devez vous connecter");
-                    }*/
-                }
+                HashMap<String, Object> sessions = mv.getSession();
                 HashMap<String, Object> data = mv.getData();
 
                 if(data.isEmpty() == false || data != null) {
