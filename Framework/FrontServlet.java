@@ -146,7 +146,6 @@ public class FrontServlet extends HttpServlet {
 
 /// ilay objet ho avadika ModelView
     protected Object modelView(Mapping m, HttpServletRequest request) throws Exception {
-
         Object obj = null;
 
         if (m == null) {
@@ -173,61 +172,56 @@ public class FrontServlet extends HttpServlet {
 
         Object objet = c.newInstance();
         Object [] argArray = null;
+        String mappingMethod = m.getMethod();
+        Method method = c.getDeclaredMethod(mappingMethod);
 
-        for(Method method : c.getDeclaredMethods()) {
-            String mappingMethod = m.getMethod();
-            String methodName = method.getName();
-
-            if(methodName.equals(mappingMethod)) {
-                Parameter [] params = method.getParameters();
-                if(params.length > 0) {  // raha misy paramètre ilay méthode 
-                    argArray = new Object[params.length];
-                    int i = 0;
+        Parameter [] params = method.getParameters();
+        if(params.length > 0) {  // raha misy paramètre ilay méthode 
+            argArray = new Object[params.length];
+            int i = 0;
                     
-                    for(Parameter parameter : params) {
-                        if(parameter.isAnnotationPresent(Parametre.class)) {
-                            Parametre parametre = parameter.getAnnotation(Parametre.class);
-                            String param = parametre.param();
-                            String valueParam = request.getParameter(param);
-
-                            if(valueParam != null || valueParam.isEmpty() == false) {
-                                Object valueObject = Utilitaire.convertParameterToType(valueParam, parameter.getType());
-                                argArray[i] = valueObject;
-                                i++;
-                            }
-                        }
-                    }
-                    obj = method.invoke(objet, argArray); // appel fonction miaraka @ tableau de paramètre 
-                } else if(params.length == 0) { // raha tsy misy paramètre ilay méthode 
-                    HashMap<String, Type> attributs = Utilitaire.getAttributs(c);
-
-                    for(Map.Entry<String, Type> entry : attributs.entrySet()) {
-
-                        String name = entry.getKey();
-                        Type type = entry.getValue();
-                        String req = request.getParameter(name);
-                    
-                        if(req != null && !req.isEmpty()) { // set 
-                            Object val = Utilitaire.convertParameterToType(req, type);
-                            Field f = objet.getClass().getDeclaredField(name);
-                            f.setAccessible(true);
-                            f.set(objet, val);
-                        }
-                        if(name == "file") { // raha file ny name @ attributs 
-                            try {
-                                Part filePart = request.getPart("file");
-                                FileUpload upload = getFileUploaded(filePart); // upload file 
-
-                                Field f = objet.getClass().getDeclaredField(name); // set 
-                                f.setAccessible(true);
-                                f.set(objet, upload);
-                            } catch (Exception e) {
-                                System.out.println(e.getMessage());
-                            }
-                        }
-                        obj = c.getMethod(m.getMethod()).invoke(objet); // invoke @ methode 
+            for(Parameter parameter : params) {
+                if(parameter.isAnnotationPresent(Parametre.class)) {
+                    Parametre parametre = parameter.getAnnotation(Parametre.class);
+                    String param = parametre.param();
+                    String valueParam = request.getParameter(param);
+                    if(valueParam != null || valueParam.isEmpty() == false) {
+                        Object valueObject = Utilitaire.convertParameterToType(valueParam, parameter.getType());
+                        argArray[i] = valueObject;
+                        i++;
                     }
                 }
+            }
+            obj = method.invoke(objet, argArray); // appel fonction miaraka @ tableau de paramètre 
+        } else if(params.length == 0) { // raha tsy misy paramètre ilay méthode 
+            System.out.println("pas de paramètre");
+            HashMap<String, Type> attributs = Utilitaire.getAttributs(c);
+
+            for(Map.Entry<String, Type> entry : attributs.entrySet()) {
+                String name = entry.getKey();
+                Type type = entry.getValue();
+                String req = request.getParameter(name);
+
+                System.out.println("Request : " + req);
+                if(req != null && !req.isEmpty()) { // set 
+                    Object val = Utilitaire.convertParameterToType(req, type);
+                    Field f = objet.getClass().getDeclaredField(name);
+                    f.setAccessible(true);
+                    f.set(objet, val);
+                }
+                if(name == "file") { // raha file ny name @ attributs 
+                    try {
+                        Part filePart = request.getPart("file");
+                        FileUpload upload = getFileUploaded(filePart); // upload file 
+
+                        Field f = objet.getClass().getDeclaredField(name); // set 
+                        f.setAccessible(true);
+                        f.set(objet, upload);
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+                obj = c.getMethod(m.getMethod()).invoke(objet); // invoke @ methode 
             }
         }
         return obj;
@@ -270,8 +264,7 @@ public class FrontServlet extends HttpServlet {
                 writer.println(json);
             } else {
                 ModelView mv = (ModelView) obj;
-                Method method = Class.forName(className).getDeclaredMethod(mapping.getMethod());
-
+                //Method method = Class.forName(className).getDeclaredMethod(mapping.getMethod());
                 HashMap<String, Object> sessions = mv.getSession();
 
                 if(sessions != null || sessions.isEmpty() == false) {
