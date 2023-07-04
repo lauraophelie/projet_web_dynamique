@@ -282,7 +282,6 @@ public class FrontServlet extends HttpServlet {
                 writer.println(json);
             } else {
                 ModelView mv = (ModelView) obj;
-                //Method method = Class.forName(className).getDeclaredMethod(mapping.getMethod());
                 HashMap<String, Object> sessions = mv.getSession();
 
                 if(sessions != null || sessions.isEmpty() == false) {
@@ -293,6 +292,8 @@ public class FrontServlet extends HttpServlet {
                         session.setAttribute(key, val);
                     }
                 }
+
+                String mappingMethod = mapping.getMethod();
 
                 HashMap<String, Object> data = mv.getData();
 
