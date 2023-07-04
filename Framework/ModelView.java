@@ -43,4 +43,18 @@ public class ModelView {
      public void addItem(String key, Object value) {
           this.getData().put(key, value);
      }
+
+     HashMap<String, Object> session = new HashMap<String, Object>();
+
+     public HashMap<String, Object> getSession() {
+          return session;
+     }
+
+     public void setSession(HashMap<String, Object> session) {
+          this.session = session;
+     }
+
+     public void addSession(String name, Object value) {
+          this.getSession().put(name, value);
+     }
 }
