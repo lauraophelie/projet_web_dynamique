@@ -14,10 +14,7 @@
     <h1> Département inséré </h1>
     <%
         Dept d = (Dept) request.getAttribute("DeptSaved");
-        FileUpload f = d.getFile();
-        out.println(f);
     %>
     <p> ID : <% out.println(d.getDeptId()); %> </p>
-    <p> Fichier : </p>
 </body>
 </html>

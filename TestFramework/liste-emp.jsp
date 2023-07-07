@@ -29,7 +29,7 @@
             <td> <% out.println(liste.get(i).getNom()); %> </td>
             <td> <% out.println(liste.get(i).getSalaire()); %> </td>
             <td>
-                <a href="emp-find-by-id?id=<% out.println(liste.get(i).getId()); %>"> Détails </a>
+                <a href="emp-find-by-id.do?id=<% out.println(liste.get(i).getId()); %>"> Détails </a>
             </td>
         </tr>
     <% } %> 

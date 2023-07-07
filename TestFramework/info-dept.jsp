@@ -10,7 +10,7 @@
 </head>
 <body>
     <h1> Upload de fichier </h1>
-    <form action="dept-save" method="post" enctype="multipart/form-data">
+    <form action="dept-save.do" method="post" enctype="multipart/form-data">
         <p>
             ID : <input type="text" name="deptId">
         </p>

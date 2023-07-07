@@ -3,6 +3,14 @@
     <servlet>
         <servlet-name>FrontServlet</servlet-name>
         <servlet-class>etu1885.framework.servlet.FrontServlet</servlet-class>
+        <init-param>
+            <param-name> sessionName </param-name>
+            <param-value> isConnected </param-value>
+        </init-param>
+        <init-param>
+            <param-name> profileName </param-name>
+            <param-value> profil </param-value>
+        </init-param>
     </servlet>
     <servlet-mapping>
         <servlet-name>FrontServlet</servlet-name>
