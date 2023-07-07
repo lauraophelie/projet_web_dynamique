@@ -49,7 +49,7 @@
 <p>
     Exemple : 
         
-            @URLs(url="emp-find-all")
+            @URLs(url="emp-find-all.do")
             public ModelView findAll() {
 
                 ModelView mv = new ModelView();
