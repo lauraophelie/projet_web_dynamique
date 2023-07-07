@@ -10,24 +10,32 @@
 <h2> Mise en place </h2>
 
 <p> Le fichier framework.jar doit être placé dans le dossier "lib/" du projet Tomcat <p>
+<p> Le fichier gson.jar doit aussi être placé dans le dossier "lib/" du projet Tomcat <p>
 
 <h2> web.xml </h2>
 
-<ul>
-    <li> servlet-name : FrontServlet </li>
-    <li> url-pattern : / </li>
-</ul>
-
-<p>
     <servlet>
-        <servlet-name> FrontServlet </servlet-name>
-        <servlet-class> etu1885.framework.servlet.FrontServlet </servlet-class>
+        <servlet-name>FrontServlet</servlet-name>
+        <servlet-class>etu1885.framework.servlet.FrontServlet</servlet-class>
+        <init-param>
+            <param-name> sessionName </param-name>
+            <param-value> isConnected </param-value>
+        </init-param>
+        <init-param>
+            <param-name> profileName </param-name>
+            <param-value> profil </param-value>
+        </init-param>
     </servlet>
     <servlet-mapping>
-        <servlet-name> FrontServlet </servlet-name>
-        <url-pattern> / </url-pattern>
+        <servlet-name>FrontServlet</servlet-name>
+        <url-pattern>*.do</url-pattern>
     </servlet-mapping>
-</p>
+    <session-config>
+        <session-timeout>
+            30
+        </session-timeout>
+    </session-config>
+
 
 <h2> Annotations </h2>
 
@@ -83,35 +91,31 @@
         }
 </p>
 
-<h2> Fonction save() </h2> 
+<h3> @Scope </h3>
 
-<p> la fonction save() prend en paramètre un Objet </p>
-<p>
-    Exemple : 
-            @URLs(url="emp-save")
-            public ModelView save(Emp e) {
-
-                ModelView mv = new ModelView();
-                mv.setView("/saved-emp.jsp");
-                
-                int id = e.getId();
-                String nom = e.getNom();
-                double salaire = e.getSalaire();
-
-                Emp emp = new Emp(id, nom, salaire);
-                mv.addItem("Emp", emp);
-
-                return mv;
-            }
+<p> 
+    chaque class annotée scope est considéré comme un singleton et est ajouté à un hashmap dans la méthode init() de la class FrontServlet, et ce singleton ne sera instancié qu'une seule fois
 </p>
-<p>
-    dans la classe Emp -> la fonction save prend en paramètre un Objet de type Emp 
+
+<p> Exemple 
+
+        @scope()
+        public class Emp {
+            . . .
+        }
 </p>
-<p>
-    pour la fonction save, les types disponibles pour le cast() sont : 
-        int, long, double, float, boolean, String, LocalDate, LocalTime, 
-        LocalDateTime, java.sql.Date, java.sql.Time
+
+<h3> @Auth </h3>
+
+<p> 
+    l'annotation est utilisée lorsqu'une fonction nécessite un login et 
+    @auth prend également un paramètre au cas où la fonction nécessite un rôle particulier ( ex : admin)
 </p>
-<p>
-    la fonction de cast() est disponible dans la class Utilitaire -> convertParameterToType()
+
+<p> Exemple 
+
+        @auth("admin")
+        public ModelView save() {
+            . . .
+        }
 </p>
