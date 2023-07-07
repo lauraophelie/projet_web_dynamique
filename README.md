@@ -76,7 +76,7 @@
 <p> 
     Exemple : 
 
-        @URLs(url="emp-find-by-id")
+        @URLs(url="emp-find-by-id.do")
         public ModelView findById(@Parametre(param="id") int id) {
             ModelView mv = new ModelView();
             mv.setView("/details-emp.jsp");
